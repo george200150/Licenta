@@ -28,6 +28,8 @@ gradle/wrapper
 gradlew.bat
 gradlew
 build/tmp/war
+Communicator/build
+Communicator/gradle/wrapper/
 
 # for python
 .project

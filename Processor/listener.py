@@ -8,16 +8,20 @@ Created on 23 iul. 2020
 import pika
 import time
 
+# rabbitmqctl set_permissions -p guest ".*" ".*" ".*"
+
 queue = 'Licenta.PythonQueue'
-exchange = 'amq.fanout'
+exchange = 'Licenta.IN'
 routing_key = 'to.python.routing.key'
 arguments = '{"x-message-ttl":172800000,"x-dead-letter-routing-key":"to.python.routing.key","x-dead-letter-exchange":"PythonExchange.DL"}'
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
+#channel
+
 #channel.queue_declare(queue='Licenta.PythonQueue', durable=True)
-channel.queue_bind(queue, exchange, routing_key, '')
+#channel.queue_bind(queue, exchange, routing_key, '')
 print(' [*] Waiting for messages. To exit press CTRL+C')
 
 
