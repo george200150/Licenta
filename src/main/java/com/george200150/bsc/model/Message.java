@@ -2,7 +2,7 @@ package com.george200150.bsc.model;
 
 public class Message {
     private Bitmap bitmap;
-    private String token;
+    private Token token;
 
     public Bitmap getBitmap() {
         return bitmap;
@@ -12,11 +12,11 @@ public class Message {
         this.bitmap = bitmap;
     }
 
-    public String getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(Token token) {
         this.token = token;
     }
 

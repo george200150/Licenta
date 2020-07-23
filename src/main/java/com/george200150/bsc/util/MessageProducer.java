@@ -8,15 +8,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class MessageProducer {
 
-//    @Autowired
-//    private RabbitTemplate erpRabbitTemplate;
-//
-//    public void post(String routingKey, Object object) {
-//        try {
-//            erpRabbitTemplate.convertAndSend(routingKey, object);
-//        } catch (final Exception e) {
-//            e.printStackTrace();
-//            throw new CustomRabbitException(e);
-//        }
-//    }
+    @Autowired
+    private RabbitTemplate erpRabbitTemplate;
+
+    public void post(String routingKey, Object object) {
+        try {
+            erpRabbitTemplate.convertAndSend(routingKey, object);
+        } catch (final Exception e) {
+            e.printStackTrace();
+            throw new CustomRabbitException(e);
+        }
+    }
 }

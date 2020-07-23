@@ -1,38 +1,43 @@
 package com.george200150.bsc.service;
 
-import com.george200150.bsc.model.Bitmap;
-import com.george200150.bsc.model.Message;
-import com.george200150.bsc.model.Prediction;
+import com.george200150.bsc.model.*;
+import com.george200150.bsc.util.MessageProducer;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.handler.annotation.Payload;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class QueueProxy {
 
-    // todo: there should not be anything dealing with networking top level
+    @Autowired
+    private MessageProducer producer;
 
-//    // create unique identifier for message
-//    String token = bitmap.hashCode() + "_TOKEN_" + System.nanoTime();
-//    Message message = new Message();
-//        message.setToken(token);
-//        message.setBitmap(bitmap);
+    @Value("${spring.routingKeys.toPythonQueue}")
+    private String routingKey;
 
-    public List<Prediction> process(Bitmap bitmap) {
-        System.out.println("IN QUEUE PROXY:    " + bitmap.toString());
-        List<Prediction> rez = new ArrayList<>();
+    public Token send(Bitmap bitmap) {
+        Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime()); // TODO: maybe add to temp map <token, client_info>
 
-        Prediction pred = new Prediction();
-        pred.setCharacter("a");
-        pred.setPercentage(100);
+        Message message = new Message();
+        message.setBitmap(bitmap);
+        message.setToken(token);
 
-        Prediction pred2 = new Prediction();
-        pred2.setCharacter("a");
-        pred2.setPercentage(20);
+        producer.post(routingKey, message); // TODO: THIS THROWS CustomRabbitException IN CASE QUEUE HAS A PROBLEM !!!
 
-        rez.add(pred);
-        rez.add(pred2);
-        rez.add(pred);
-        rez.add(pred2);
-        return rez;
+        return token;
+    }
+
+
+    @RabbitListener(queues = "${spring.routingKeys.fromPythonQueue}")
+    public void handlePythonMessage(@Payload final BackMessage backMessage) {
+
+        List<Prediction> predictions = backMessage.getPreds();
+        Token token = backMessage.getToken();
+
+        // TODO: create push notification for map[token] client
+
+        System.out.println(predictions);
     }
 }

@@ -7,7 +7,7 @@ import java.util.List;
 //@Data
 public class BackMessage {
     private List<Prediction> preds;
-    private String token;
+    private Token token;
 
     public List<Prediction> getPreds() {
         return preds;
@@ -17,11 +17,11 @@ public class BackMessage {
         this.preds = preds;
     }
 
-    public String getToken() {
+    public Token getToken() {
         return token;
     }
 
-    public void setToken(String token) {
+    public void setToken(Token token) {
         this.token = token;
     }
 

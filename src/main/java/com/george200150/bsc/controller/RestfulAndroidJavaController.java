@@ -1,10 +1,8 @@
 package com.george200150.bsc.controller;
 
-import com.george200150.bsc.listener.MQManager;
 import com.george200150.bsc.model.*;
 import com.george200150.bsc.persistence.PlantDataBaseRepository;
 import com.george200150.bsc.service.QueueProxy;
-import com.george200150.bsc.util.ParseBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,22 +21,10 @@ public class RestfulAndroidJavaController {
     private QueueProxy server;
 
     @PostMapping("bitmap")
-    public ResponseEntity<Plant> handlePostCar(@RequestBody Bitmap bitmap) {
+    @ResponseStatus(HttpStatus.OK)
+    public Token handlePostCar(@RequestBody Bitmap bitmap) {
         // send bitmap for processing on Python server
-        List<Prediction> probMap = server.process(bitmap);
-
-        System.out.println("IN RESTFUL AFTER SERVER PROCESS:    " + probMap.toString());
-
-        // transform the received data into text
-        String latinName = ParseBuilder.parse(probMap);
-
-        System.out.println("LATIN NAME:    " + latinName);
-
-        // query the DB for a record
-        Plant record = repository.getRecordByLatinName(latinName);
-
-        // return the DB data to the client
-        return new ResponseEntity<Plant>(record, HttpStatus.OK);
+        return server.send(bitmap);
     }
 
 //    {
