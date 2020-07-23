@@ -64,9 +64,10 @@ public class RestfulAndroidJavaController {
     }
 
     @PostMapping("records")
-    public ResponseEntity<List<Plant>> handleGetRecords(@RequestBody Bounds interval) {
+    public ResponseEntity<List<Plant>> handleGetRecords(/*@RequestBody Bounds interval*/) {
         // query the DB for a record
-        List<Plant> record = repository.getPagedRecords(interval);
+//        List<Plant> record = repository.getPagedRecords(interval);
+        List<Plant> record = repository.getAll();
         // return the DB data to the client
         return new ResponseEntity<List<Plant>>(record, HttpStatus.OK);
     }
