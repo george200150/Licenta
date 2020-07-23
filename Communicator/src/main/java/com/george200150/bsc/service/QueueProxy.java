@@ -1,5 +1,7 @@
 package com.george200150.bsc.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george200150.bsc.model.*;
 import com.george200150.bsc.util.MessageProducer;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -10,6 +12,9 @@ import org.springframework.messaging.handler.annotation.Payload;
 import java.util.List;
 
 public class QueueProxy {
+
+    @Autowired
+    private ObjectMapper mapper;
 
     @Autowired
     private MessageProducer producer;
@@ -24,13 +29,23 @@ public class QueueProxy {
         message.setBitmap(bitmap);
         message.setToken(token);
 
-        producer.post(routingKey, message); // TODO: THIS THROWS CustomRabbitException IN CASE QUEUE HAS A PROBLEM !!!
+        try {
+            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(message);
 
+            System.out.println(json);
+
+            producer.post(routingKey, json); // TODO: THIS THROWS CustomRabbitException IN CASE QUEUE HAS A PROBLEM !!!
+            // PRODUCES: java.lang.IllegalArgumentException: SimpleMessageConverter only supports String, byte[] and Serializable payloads, received: com.george200150.bsc.model.Message
+
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            // TODO: THROW NEW CUSTOM EXCEPTION !!!
+        }
         return token;
     }
 
 
-    @RabbitListener(queues = "${spring.routingKeys.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
+    @RabbitListener(queues = "${spring.queueName.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
     public void handlePythonMessage(@Payload final BackMessage backMessage) {
 
         List<Prediction> predictions = backMessage.getPreds();

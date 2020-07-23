@@ -28,3 +28,7 @@ gradle/wrapper
 gradlew.bat
 gradlew
 build/tmp/war
+
+# for python
+.project
+.pydevproject

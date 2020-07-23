@@ -1,3 +1,4 @@
+/*
 package com.george200150.bsc.app;
 
 import com.rabbitmq.client.Channel;
@@ -7,7 +8,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.nio.charset.StandardCharsets;
 
 public class CreateQueuesMain {
-    private final static String QUEUE_NAME = "to_python";
+//    private final static String QUEUE_NAME = "to_python";
 
     public static void main(String[] argv) throws Exception {
 //        ConnectionFactory factory = new ConnectionFactory();
@@ -21,3 +22,4 @@ public class CreateQueuesMain {
 ////        }
     }
 }
+*/
