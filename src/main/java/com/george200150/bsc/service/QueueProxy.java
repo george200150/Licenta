@@ -14,7 +14,7 @@ public class QueueProxy {
     @Autowired
     private MessageProducer producer;
 
-    @Value("${spring.routingKeys.toPythonQueue}")
+    @Value("${spring.routingKeys.send}") // http://localhost:15672/#/queues/%2F/Licenta.PythonQueue
     private String routingKey;
 
     public Token send(Bitmap bitmap) {
@@ -30,7 +30,7 @@ public class QueueProxy {
     }
 
 
-    @RabbitListener(queues = "${spring.routingKeys.fromPythonQueue}")
+    @RabbitListener(queues = "${spring.routingKeys.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
     public void handlePythonMessage(@Payload final BackMessage backMessage) {
 
         List<Prediction> predictions = backMessage.getPreds();
