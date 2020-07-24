@@ -25,8 +25,8 @@ public class PlantDataBaseRepository {
         return namedParameterJdbcTemplate.query(queryString, new PlantRowMapper());
     }
 
-    public Plant getRecordByLatinName(String latinName) {
-        String queryString = "SELECT * FROM plants WHERE `latinName` LIKE :latinName";
+    public Plant getRecordByLatinName(String latinName) { // TODO: query search seems broken if too many letters are missing
+        String queryString = "SELECT * FROM plants WHERE `latinName` REGEXP CONCAT('.*', :latinName, '.*')";
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("latinName", latinName);
         List<Plant> plants = namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
         Plant plant = null;
@@ -36,8 +36,8 @@ public class PlantDataBaseRepository {
         return plant;
     }
 
-    public Plant getRecordByEnglishName(String englishName) {
-        String queryString = "SELECT * FROM plants WHERE `englishName` LIKE :englishName";
+    public Plant getRecordByEnglishName(String englishName) { // TODO: query search seems broken if too many letters are missing
+        String queryString = "SELECT * FROM plants WHERE `englishName` REGEXP CONCAT('%', :englishName, '%')";
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("englishName", englishName);
         List<Plant> plants = namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
         Plant plant = null;

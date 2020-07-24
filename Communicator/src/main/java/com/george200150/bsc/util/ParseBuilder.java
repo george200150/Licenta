@@ -11,7 +11,7 @@ public class ParseBuilder {
 
     public static String parse(List<Prediction> probMap) {
         StringBuilder sb = new StringBuilder();
-        probMap.stream().map(x -> {if(x.getPercentage() > 80) return x.getCharacter(); else return "_"; }).forEach(sb::append);
+        probMap.stream().map(x -> {if(x.getPercentage() > 80) return x.getCharacter(); else return "."; }).forEach(sb::append);
         return sb.toString();
     }
 }

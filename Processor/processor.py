@@ -25,7 +25,7 @@ class PixelMapper:
 class HardProcessor:
     @staticmethod
     def process(height, width, RGBpixels):
-        predictionsList = [['a', randint(0,100)],['b', randint(0,100)],['c', randint(0,100)]]
+        predictionsList = [['a', randint(70,100)],['c', randint(70,100)],['e', randint(70,100)],['r', randint(70,100)]]
         return predictionsList
 
 class MainProcessor:

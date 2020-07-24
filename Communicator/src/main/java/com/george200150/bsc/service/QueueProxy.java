@@ -3,15 +3,14 @@ package com.george200150.bsc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george200150.bsc.model.*;
+import com.george200150.bsc.persistence.PlantDataBaseRepository;
 import com.george200150.bsc.util.MessageProducer;
+import com.george200150.bsc.util.ParseBuilder;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Payload;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +26,9 @@ public class QueueProxy {
 
     @Autowired
     private MessageProducer producer;
+
+    @Autowired
+    private PlantDataBaseRepository repository;
 
     @Value("${spring.queues.routing.send}") // http://localhost:15672/#/queues/%2F/Licenta.PythonQueue
     private String routingKey;
@@ -70,7 +72,16 @@ public class QueueProxy {
 
             // TODO: create push notification for map[token] client
 
-            System.out.println(predictions);
+            System.out.println("PREDICTIONS = " + predictions);
+
+            String text = ParseBuilder.parse(predictions);
+
+            System.out.println(text);
+
+            Plant plant = repository.getRecordByLatinName(text);
+
+            System.out.println(plant);
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
