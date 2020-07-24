@@ -13,3 +13,5 @@ ultima versiune de connector are probleme, ca nu gaseste ceva timezone in setari
 
 # 3. Trebuie ca predictiile care ajung in Java sa fie foarte bune, rezultatul este considerat by default unic (daca exista)
 poate ar trebui sa returnez o lista de rezultate...
+
+# 5. Trebuie sa refactorizez codul de python - este oop + functional si nu se mai intelege nimic.

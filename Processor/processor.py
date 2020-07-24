@@ -8,6 +8,10 @@ import json
 from concurrent.futures.thread import ThreadPoolExecutor
 from random import randint
 
+from PIL import Image
+import pytesseract
+pytesseract.pytesseract.tesseract_cmd = (r"C:\Program Files\Tesseract-OCR\tesseract.exe")
+
 class PredictionMapper:
     @staticmethod
     def map(pixel):
@@ -20,11 +24,36 @@ class PixelMapper:
         r = int(pixel['r'])
         g = int(pixel['g'])
         b = int(pixel['b'])
-        return [r,g,b]
+        return (r,g,b)
+
+
 
 class HardProcessor:
     @staticmethod
     def process(height, width, RGBpixels):
+        #predictionsList = [['a', randint(70,100)],['c', randint(70,100)],['e', randint(70,100)],['r', randint(70,100)]]
+        
+        img = Image.new( 'RGB', (height,width), "black") # Create a new black image
+        pixels = img.load() # Create the pixel map
+        for i in range(img.size[0]):    # For every pixel:
+            for j in range(img.size[1]):
+                print(pixels[i,j])
+                pixels[i, j] = RGBpixels[height*i+j]
+        
+        # DEBUG
+        img.show()
+        
+        ############################################################################################################################################
+        information = pytesseract.image_to_data(img)#, lang, config, nice, output_type, timeout, pandas_config)
+        print(information)
+        print()
+        
+        # TODO: this should be thoroughly processed and handled with great care
+        
+        outputedText = pytesseract.image_to_string(img)
+        print(outputedText)
+        ############################################################################################################################################
+        
         predictionsList = [['a', randint(70,100)],['c', randint(70,100)],['e', randint(70,100)],['r', randint(70,100)]]
         return predictionsList
 
@@ -89,7 +118,10 @@ def callback(ch, method, properties, body):
     print(parsedMessageJSON)
     
     # this is good concurency
-    executor.submit(process, parsedMessageJSON)
+    #executor.submit(process, parsedMessageJSON)
+    
+    #DEBUG no concurency
+    process(parsedMessageJSON)
     
     print(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)

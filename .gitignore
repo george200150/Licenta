@@ -34,3 +34,15 @@ Communicator/gradle/wrapper/
 # for python
 .project
 .pydevproject
+
+# for android
+LicentaMobile/.gradle
+LicentaMobile/.idea
+LicentaMobile/gradle
+LicentaMobile/build.gradle
+LicentaMobile/gradlew
+LicentaMobile/gradlew.bat
+LicentaMobile/local.properties
+LicentaMobile/app/build
+LicentaMobile/app/libs
+LicentaMobile/app/proguard-rules.pro

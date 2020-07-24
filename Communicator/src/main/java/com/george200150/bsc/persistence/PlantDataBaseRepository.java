@@ -18,11 +18,11 @@ public class PlantDataBaseRepository {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<Plant> getPagedRecords(Bounds interval) {
-        String queryString = "SELECT * FROM plants LIMIT ";
+        String queryString = "SELECT * FROM plants LIMIT :from,:offset;";
         int from = interval.getOffset();
         int howMany = interval.getLimit();
-        queryString += from + "," + howMany + ";";
-        return namedParameterJdbcTemplate.query(queryString, new PlantRowMapper());
+        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("from", from).addValue("offset", howMany);
+        return namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
     }
 
     public Plant getRecordByLatinName(String latinName) { // TODO: query search seems broken if too many letters are missing
