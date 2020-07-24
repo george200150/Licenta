@@ -11,7 +11,7 @@ import time
 # rabbitmqctl set_permissions -p guest ".*" ".*" ".*"
 
 queue = 'Licenta.PythonQueue'
-exchange = 'Licenta.IN'
+exchange = 'PythonExchange.IN'
 routing_key = 'to.python.routing.key'
 arguments = '{"x-message-ttl":172800000,"x-dead-letter-routing-key":"to.python.routing.key","x-dead-letter-exchange":"PythonExchange.DL"}'
 

@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
-import org.springframework.validation.SmartValidator;
 
 
 @Configuration
@@ -36,13 +35,13 @@ public class ListenerConfig implements RabbitListenerConfigurer {
 
 
     @Value("${spring.queues.exchange.send}")
-    private String warehouseEventsExchange;
+    private String processingExchange;
 
     @Bean
     public RabbitTemplate erpRabbitTemplate(ConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate();
         rabbitTemplate.setConnectionFactory(connectionFactory);
-        rabbitTemplate.setExchange(warehouseEventsExchange);
+        rabbitTemplate.setExchange(processingExchange);
         rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
         return rabbitTemplate;
     }

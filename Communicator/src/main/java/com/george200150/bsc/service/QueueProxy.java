@@ -11,6 +11,11 @@ import org.springframework.messaging.handler.annotation.Payload;
 
 import java.util.List;
 
+// HAVE DONE TO SETUP:
+// -> created new DIRECT EXCHANGE "PythonExchange.IN" from UI
+// -> BOUND to "Licenta.PythonQueue" the created exchange with ROUTING KEY "to.python.routing.key"
+// -> now it works
+
 public class QueueProxy {
 
     @Autowired
@@ -47,7 +52,7 @@ public class QueueProxy {
     }
 
 
-    @RabbitListener(queues = "${spring.queues.routing.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
+    @RabbitListener(queues = "${spring.queues.name.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
     public void handlePythonMessage(@Payload final BackMessage backMessage) {
 
         List<Prediction> predictions = backMessage.getPreds();

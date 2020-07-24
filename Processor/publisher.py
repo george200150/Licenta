@@ -6,17 +6,17 @@ Created on 23 iul. 2020
 
 #!/usr/bin/env python
 import pika
-import sys
 
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
 
-channel.queue_declare(queue='Licenta.JavaQueue', durable=True)
+#channel.queue_declare(queue='Licenta.JavaQueue', durable=True)
 
-message = ' '.join(sys.argv[1:]) or "Hello World!"
+# TODO: parse the JSON correctly
+message = '{"preds": [], "token": {"message": ""}}'
 channel.basic_publish(
-    exchange='Licenta.IN',
+    exchange='JavaExchange.IN',
     routing_key='to.java.routing.key',
     body=message,
     properties=pika.BasicProperties(
