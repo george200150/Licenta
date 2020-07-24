@@ -25,8 +25,14 @@ channel = connection.channel()
 print(' [*] Waiting for messages. To exit press CTRL+C')
 
 
+import json
+
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)
+    
+    parsedJSON = json.loads(body) # - from bytes to string
+    print(parsedJSON)
+    
     time.sleep(body.count(b'.'))
     print(" [x] Done")
     ch.basic_ack(delivery_tag=method.delivery_tag)

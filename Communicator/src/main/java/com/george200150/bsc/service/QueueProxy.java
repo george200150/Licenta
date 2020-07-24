@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Payload;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.util.Arrays;
 import java.util.List;
 
 // HAVE DONE TO SETUP:
@@ -53,13 +57,22 @@ public class QueueProxy {
 
 
     @RabbitListener(queues = "${spring.queues.name.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
-    public void handlePythonMessage(@Payload final BackMessage backMessage) {
+    public void handlePythonMessage(@Payload final byte[] byteMessage) {
 
-        List<Prediction> predictions = backMessage.getPreds();
-        Token token = backMessage.getToken();
+        System.out.println(Arrays.toString(byteMessage));
+        String jsonMessage = new String(byteMessage);
+        BackMessage backMessage = null;
+        try {
+            backMessage = mapper.readValue(jsonMessage, BackMessage.class);
 
-        // TODO: create push notification for map[token] client
+            List<Prediction> predictions = backMessage.getPreds();
+            Token token = backMessage.getToken();
 
-        System.out.println(predictions);
+            // TODO: create push notification for map[token] client
+
+            System.out.println(predictions);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

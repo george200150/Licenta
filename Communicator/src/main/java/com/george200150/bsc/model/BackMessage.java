@@ -2,11 +2,15 @@ package com.george200150.bsc.model;
 
 //import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 //@Data
 public class BackMessage {
+    @JsonProperty("preds")
     private List<Prediction> preds;
+    @JsonProperty("token")
     private Token token;
 
     public List<Prediction> getPreds() {

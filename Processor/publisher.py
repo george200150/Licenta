@@ -13,14 +13,18 @@ channel = connection.channel()
 
 #channel.queue_declare(queue='Licenta.JavaQueue', durable=True)
 
+import json
+
 # TODO: parse the JSON correctly
-message = '{"preds": [], "token": {"message": ""}}'
+message = {"preds": [{"character": "a", "percentage": 100}, {"character": "b", "percentage": 70}], "token": {"message": "123hash123_TOKEN_456hash456"}}
+stringMessage = json.dumps(message)
+
 channel.basic_publish(
     exchange='JavaExchange.IN',
     routing_key='to.java.routing.key',
-    body=message,
+    body=stringMessage,
     properties=pika.BasicProperties(
         delivery_mode=2,  # make message persistent
     ))
-print(" [x] Sent %r" % message)
+print(" [x] Sent %r" % stringMessage)
 connection.close()
