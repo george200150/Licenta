@@ -7,25 +7,14 @@ Created on 23 iul. 2020
 #!/usr/bin/env python
 import pika
 import time
+import json
 
-# rabbitmqctl set_permissions -p guest ".*" ".*" ".*"
-
-queue = 'Licenta.PythonQueue'
-exchange = 'PythonExchange.IN'
-routing_key = 'to.python.routing.key'
-arguments = '{"x-message-ttl":172800000,"x-dead-letter-routing-key":"to.python.routing.key","x-dead-letter-exchange":"PythonExchange.DL"}'
 
 connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
 channel = connection.channel()
-
-#channel
-
-#channel.queue_declare(queue='Licenta.PythonQueue', durable=True)
-#channel.queue_bind(queue, exchange, routing_key, '')
 print(' [*] Waiting for messages. To exit press CTRL+C')
 
 
-import json
 
 def callback(ch, method, properties, body):
     print(" [x] Received %r" % body)

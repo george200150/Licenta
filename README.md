@@ -10,5 +10,3 @@ nu mai tin minte cum era facut, stiu ca asa era, poate il lua din ceva dependent
 
 # 2. Ce versiune de MySQL ar trebui sa folosesc ca sa nu imi puste ceva, ca am MySQL 5.46+, sau idk, ceva mai nou
 ultima versiune de connector are probleme, ca nu gaseste ceva timezone in setarile serverului... spring dependency management is better
-
-# 3. Parse JSON Correctly from Java to Python and from Python to Java.

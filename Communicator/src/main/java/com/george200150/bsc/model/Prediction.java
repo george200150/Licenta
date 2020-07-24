@@ -9,6 +9,14 @@ public class Prediction {
     @JsonProperty("percentage")
     private int percentage;
 
+    public Prediction() {
+    }
+
+    public Prediction(String character, int percentage) {
+        this.character = character;
+        this.percentage = percentage;
+    }
+
     public String getCharacter() {
         return character;
     }

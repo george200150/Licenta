@@ -13,6 +13,14 @@ public class BackMessage {
     @JsonProperty("token")
     private Token token;
 
+    public BackMessage() {
+    }
+
+    public BackMessage(List<Prediction> preds, Token token) {
+        this.preds = preds;
+        this.token = token;
+    }
+
     public List<Prediction> getPreds() {
         return preds;
     }
