@@ -5,7 +5,6 @@ import com.george200150.bsc.persistence.PlantDataBaseRepository;
 import com.george200150.bsc.service.QueueProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,29 +45,21 @@ public class RestfulAndroidJavaController {
 //]
 //    }
 
-    //TODO: return object is not null, but it is an object with default values (0 or null)
     @GetMapping("records/EN/{englishName}")
-    public ResponseEntity<Plant> handleGetRecordbyEnglishName(@PathVariable String englishName) {
-        // query the DB for a record
-        Plant record = repository.getRecordByEnglishName(englishName);
-        // return the DB data to the client
-        return new ResponseEntity<Plant>(record, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public Plant handleGetRecordbyEnglishName(@PathVariable String englishName) {
+        return repository.getRecordByEnglishName(englishName);
     }
 
     @GetMapping("records/LAT/{latinName}")
-    public ResponseEntity<Plant> handleGetRecordbyLatinName(@PathVariable String latinName) {
-        // query the DB for a record
-        Plant record = repository.getRecordByLatinName(latinName);
-        // return the DB data to the client
-        return new ResponseEntity<Plant>(record, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public Plant handleGetRecordbyLatinName(@PathVariable String latinName) {
+        return repository.getRecordByLatinName(latinName);
     }
 
     @PostMapping("records")
-    public ResponseEntity<List<Plant>> handleGetRecords(/*@RequestBody Bounds interval*/) {
-        // query the DB for a record
-//        List<Plant> record = repository.getPagedRecords(interval);
-        List<Plant> record = repository.getAll();
-        // return the DB data to the client
-        return new ResponseEntity<List<Plant>>(record, HttpStatus.OK);
+    @ResponseStatus(HttpStatus.OK)
+    public List<Plant> handleGetRecords(@RequestBody Bounds interval) {
+        return repository.getPagedRecords(interval);
     }
 }

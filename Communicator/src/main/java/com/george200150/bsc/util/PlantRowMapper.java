@@ -16,13 +16,11 @@ import java.sql.SQLException;
 @Component
 public class PlantRowMapper implements RowMapper<Plant> {
 
-    // TODO : @Autowired does not find bean !!!
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    //@Autowired
-    private ObjectMapper mapper;
-
-    public PlantRowMapper(){
-        this.mapper = new ObjectMapper();
+    public PlantRowMapper() {
+        this.objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -38,7 +36,7 @@ public class PlantRowMapper implements RowMapper<Plant> {
             plant.setEnglishName(rs.getString("englishName"));
             plant.setLatinName(rs.getString("latinName"));
             plant.setKingdom(rs.getString("kingdom"));
-            plant.setClades(mapper.readValue(rs.getString("clades"), Clades.class));
+            plant.setClades(objectMapper.readValue(rs.getString("clades"), Clades.class));
             plant.setDivision(rs.getString("division"));
             plant.setPlantClass(rs.getString("plantClass"));
             plant.setOrder(rs.getString("order"));
@@ -46,9 +44,9 @@ public class PlantRowMapper implements RowMapper<Plant> {
             plant.setSubFamily(rs.getString("subFamily"));
             plant.setGenus(rs.getString("genus"));
             plant.setSpecies(rs.getString("species"));
-            plant.setLocation(mapper.readValue(rs.getString("location"), Location.class));
-            plant.setGreeningSeason(mapper.readValue(rs.getString("greeningSeason"), Interval.class));
-            plant.setBloomingSeason(mapper.readValue(rs.getString("bloomingSeason"), Interval.class));
+            plant.setLocation(objectMapper.readValue(rs.getString("location"), Location.class));
+            plant.setGreeningSeason(objectMapper.readValue(rs.getString("greeningSeason"), Interval.class));
+            plant.setBloomingSeason(objectMapper.readValue(rs.getString("bloomingSeason"), Interval.class));
         } catch (JsonProcessingException | SQLException e) {
             e.printStackTrace();
             // TODO: throw custom exception, I guess...

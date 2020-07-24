@@ -16,10 +16,6 @@ import org.springframework.validation.SmartValidator;
 
 @Configuration
 public class ListenerConfig implements RabbitListenerConfigurer {
-//    @Bean
-//    public RestTemplate restTemplate() {
-//        return new RestTemplate();
-//    }
 
 //    @Autowired
 //    private SmartValidator validator;
