@@ -4,6 +4,7 @@ import com.george200150.bsc.model.Bounds;
 import com.george200150.bsc.model.Plant;
 import com.george200150.bsc.util.PlantRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -14,21 +15,28 @@ import java.util.List;
 @Component
 public class PlantDataBaseRepository {
 
+    @Value("${spring.queries.SELECT_PAGED}")
+    private String SELECT_PAGED;
+
+    @Value("${spring.queries.SELECT_BY_LATIN_NAME}")
+    private String SELECT_BY_LATIN_NAME;
+
+    @Value("${spring.queries.SELECT_BY_ENGLISH_NAME}")
+    private String SELECT_BY_ENGLISH_NAME;
+
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public List<Plant> getPagedRecords(Bounds interval) {
-        String queryString = "SELECT * FROM plants LIMIT :from,:offset;";
         int from = interval.getOffset();
         int howMany = interval.getLimit();
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("from", from).addValue("offset", howMany);
-        return namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
+        return namedParameterJdbcTemplate.query(SELECT_PAGED, namedParameters, new PlantRowMapper());
     }
 
-    public Plant getRecordByLatinName(String latinName) { // TODO: query search seems broken if too many letters are missing
-        String queryString = "SELECT * FROM plants WHERE `latinName` REGEXP CONCAT('.*', :latinName, '.*')";
+    public Plant getRecordByLatinName(String latinName) {
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("latinName", latinName);
-        List<Plant> plants = namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
+        List<Plant> plants = namedParameterJdbcTemplate.query(SELECT_BY_LATIN_NAME, namedParameters, new PlantRowMapper());
         Plant plant = null;
         if (plants.size() > 0){
             plant = plants.get(0);
@@ -36,10 +44,9 @@ public class PlantDataBaseRepository {
         return plant;
     }
 
-    public Plant getRecordByEnglishName(String englishName) { // TODO: query search seems broken if too many letters are missing
-        String queryString = "SELECT * FROM plants WHERE `englishName` REGEXP CONCAT('%', :englishName, '%')";
+    public Plant getRecordByEnglishName(String englishName) {
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("englishName", englishName);
-        List<Plant> plants = namedParameterJdbcTemplate.query(queryString, namedParameters, new PlantRowMapper());
+        List<Plant> plants = namedParameterJdbcTemplate.query(SELECT_BY_ENGLISH_NAME, namedParameters, new PlantRowMapper());
         Plant plant = null;
         if (plants.size() > 0){
             plant = plants.get(0);
@@ -47,33 +54,3 @@ public class PlantDataBaseRepository {
         return plant;
     }
 }
-
-//STUB
-//Plant plant = new Plant();
-//        plant.setFamily("FAMILY");
-//
-//                Interval blooming = new Interval();
-//                blooming.setStartMonth(4);
-//                blooming.setEndMonth(5);
-//                plant.setBloomingSeason(blooming);
-//
-//                plant.setEnglishName("ENGLISH NAME: " + englishName);
-//                plant.setGenus("GENUS");
-//
-//                Interval greening = new Interval();
-//                greening.setStartMonth(3);
-//                greening.setEndMonth(7);
-//                plant.setGreeningSeason(greening);
-//
-//                plant.setId(1);
-//                plant.setKingdom("KINGDOM");
-//                plant.setLatinName("LATIN NAME");
-//
-//                Location location = new Location();
-//                location.setDecimalDegreesN(12.235);
-//                location.setDecimalDegreesE(45.2452);
-//                plant.setLocation(location);
-//
-//                plant.setOrder("ORDER");
-//                plant.setSpecies("SPECIES");
-//                return plant;

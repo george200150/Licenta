@@ -48,7 +48,6 @@ public class QueueProxy {
             System.out.println("routingKey = " + routingKey);
 
             producer.post(routingKey, json); // TODO: THIS THROWS CustomRabbitException IN CASE QUEUE HAS A PROBLEM !!!
-            // PRODUCES: java.lang.IllegalArgumentException: SimpleMessageConverter only supports String, byte[] and Serializable payloads, received: com.george200150.bsc.model.Message
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();

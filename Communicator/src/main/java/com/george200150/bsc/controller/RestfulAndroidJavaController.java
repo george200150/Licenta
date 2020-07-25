@@ -22,28 +22,8 @@ public class RestfulAndroidJavaController {
     @PostMapping("bitmap")
     @ResponseStatus(HttpStatus.OK)
     public Token handlePostCar(@RequestBody Bitmap bitmap) {
-        // send bitmap for processing on Python server
         return server.send(bitmap);
     }
-
-//    {
-//        "height": 2,
-//            "width": 2,
-//            "pixels": [
-//        {"R":0,
-//                "G": 0,
-//                "B": 0},
-//        {"R":0,
-//                "G": 0,
-//                "B": 0},
-//        {"R":0,
-//                "G": 0,
-//                "B": 0},
-//        {"R":0,
-//                "G": 0,
-//                "B": 0}
-//]
-//    }
 
     @GetMapping("records/EN/{englishName}")
     @ResponseStatus(HttpStatus.OK)

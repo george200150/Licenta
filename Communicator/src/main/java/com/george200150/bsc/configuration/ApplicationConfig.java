@@ -1,5 +1,7 @@
-package com.george200150.bsc.app;
+package com.george200150.bsc.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.george200150.bsc.service.QueueProxy;
 import org.springframework.amqp.rabbit.annotation.RabbitListenerConfigurer;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,12 +14,21 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.handler.annotation.support.DefaultMessageHandlerMethodFactory;
 import org.springframework.messaging.handler.annotation.support.MessageHandlerMethodFactory;
 
-
 @Configuration
-public class ListenerConfig implements RabbitListenerConfigurer {
+public class ApplicationConfig implements RabbitListenerConfigurer {
 
-//    @Autowired
-//    private SmartValidator validator;
+    @Value("${spring.queues.exchange.send}")
+    private String processingExchange;
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
+
+    @Bean
+    public QueueProxy queueProxy() {
+        return new QueueProxy();
+    }
 
     @Override
     public void configureRabbitListeners(RabbitListenerEndpointRegistrar registrar) {
@@ -28,14 +39,8 @@ public class ListenerConfig implements RabbitListenerConfigurer {
     public MessageHandlerMethodFactory messageHandlerMethodFactory() {
         DefaultMessageHandlerMethodFactory factory = new DefaultMessageHandlerMethodFactory();
         factory.setMessageConverter(new MappingJackson2MessageConverter());
-//        factory.setValidator(this.validator);
-//        TODO: had to remove this because could not autowire validator for some reason
         return factory;
     }
-
-
-    @Value("${spring.queues.exchange.send}")
-    private String processingExchange;
 
     @Bean
     public RabbitTemplate erpRabbitTemplate(ConnectionFactory connectionFactory) {
