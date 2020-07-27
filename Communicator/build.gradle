@@ -15,9 +15,12 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.3.1.RELEASE'
 
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
-    providedCompile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    annotationProcessor "org.projectlombok:lombok:1.18.12"
 
     // https://mvnrepository.com/artifact/org.springframework/spring-core
     compile group: 'org.springframework', name: 'spring-core', version: '5.2.7.RELEASE'
@@ -34,18 +37,10 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.3.1.RELEASE'
 
-    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.3.1.RELEASE'
 
-
-//    // https://mvnrepository.com/artifact/mysql/mysql-connector-java
-//    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.21'
     // https://mvnrepository.com/artifact/mysql/mysql-connector-java
     compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.47'
 
-    // TODO: WHAT IN THE WORLD IS WRONG WITH THE DEPENDENCIES ???
-    // I guess that is because the older servers running are configured differently and don't require this feature
-    // Fri Jul 24 02:42:04 EEST 2020 WARN: Establishing SSL connection without server's identity verification is not recommended. According to MySQL 5.5.45+, 5.6.26+ and 5.7.6+ requirements SSL connection must be established by default if explicit option isn't set. For compliance with existing applications not using SSL the verifyServerCertificate property is set to 'false'. You need either to explicitly disable SSL by setting useSSL=false, or set useSSL=true and provide truststore for server certificate verification.
 
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.1'
@@ -55,5 +50,12 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jdbc
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.3.1.RELEASE'
+
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '2.0.0-alpha1'
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0-alpha1'
 
 }
