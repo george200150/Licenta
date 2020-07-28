@@ -21,6 +21,13 @@ public class RestfulAndroidJavaController {
     @Autowired
     private QueueProxy server;
 
+    @PostMapping("simple")
+    @ResponseStatus(HttpStatus.OK)
+    public Simple handlePostSimple(@RequestBody Simple simple) {
+        log.debug("Entered class = RestfulAndroidJavaController & method = handlePostSimple & Simple simple = {}", simple);
+        return simple;
+    }
+
     @PostMapping("bitmap")
     @ResponseStatus(HttpStatus.OK)
     public Token handlePostCar(@RequestBody Bitmap bitmap) {

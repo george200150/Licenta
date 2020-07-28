@@ -1,6 +1,5 @@
 package com.george200150.bsc.controller;
 
-import com.george200150.bsc.exception.CustomRabbitException;
 import com.george200150.bsc.exception.PlantMappingException;
 import com.george200150.bsc.exception.QueueProxyException;
 import lombok.extern.slf4j.Slf4j;
