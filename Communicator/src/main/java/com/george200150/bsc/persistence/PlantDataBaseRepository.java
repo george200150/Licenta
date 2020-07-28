@@ -31,9 +31,7 @@ public class PlantDataBaseRepository {
 
     public List<Plant> getPagedRecords(Bounds interval) {
         log.debug("Entered class = PlantDataBaseRepository & method = getPagedRecords & Bounds interval = {}", interval);
-        int from = interval.getOffset();
-        int howMany = interval.getLimit();
-        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("from", from).addValue("offset", howMany);
+        SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("from", interval.getOffset()).addValue("offset", interval.getLimit());
         List<Plant> plants = namedParameterJdbcTemplate.query(SELECT_PAGED, namedParameters, new PlantRowMapper());
         log.debug("Exit class = PlantDataBaseRepository & method = getPagedRecords & return List<Plant> plants = {}", plants);
         return plants;

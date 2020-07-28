@@ -2,6 +2,7 @@ package com.george200150.bsc.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.george200150.bsc.exception.CustomRabbitException;
 import com.george200150.bsc.exception.QueueProxyException;
 import com.george200150.bsc.model.*;
 import com.george200150.bsc.persistence.PlantDataBaseRepository;
@@ -51,7 +52,7 @@ public class QueueProxy {
 
             producer.post(routingKey, json); // THIS THROWS CustomRabbitException IN CASE QUEUE HAS A PROBLEM
             log.debug("Exiting try after producer.post(routingKey, json); in send");
-        } catch (JsonProcessingException e) {
+        } catch (JsonProcessingException | CustomRabbitException e) {
             log.debug("Throw in send & JsonProcessingException e = {}", e);
             throw new QueueProxyException(e);
         }
