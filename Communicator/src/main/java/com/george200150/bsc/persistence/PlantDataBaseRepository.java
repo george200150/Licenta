@@ -39,6 +39,17 @@ public class PlantDataBaseRepository {
 
     public Plant getRecordByLatinName(String latinName) {
         log.debug("Entered class = PlantDataBaseRepository & method = getRecordByLatinName & String latinName = {}", latinName);
+        /*String[] parts = latinName.split("%20");
+        if (parts.length > 1){
+            StringBuilder sb = new StringBuilder();
+            for (String part : parts) {
+                sb.append(part);
+                sb.append(" ");
+            }
+            latinName = sb.toString();
+            latinName = latinName.substring(0, latinName.length() - 1);
+        }
+        log.debug("Processed String latinName = {}", latinName);*/
         SqlParameterSource namedParameters = new MapSqlParameterSource().addValue("latinName", latinName);
         List<Plant> plants = namedParameterJdbcTemplate.query(SELECT_BY_LATIN_NAME, namedParameters, new PlantRowMapper());
         Plant plant = null;

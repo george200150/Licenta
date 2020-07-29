@@ -1,4 +1,4 @@
-package com.george200150.bsc.pleasework;
+package com.george200150.bsc.pleasefirebase;
 
 
 import com.google.gson.annotations.Expose;

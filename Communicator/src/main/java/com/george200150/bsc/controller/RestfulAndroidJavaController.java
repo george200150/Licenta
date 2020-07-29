@@ -21,6 +21,17 @@ public class RestfulAndroidJavaController {
     @Autowired
     private QueueProxy server;
 
+
+
+    @PostMapping(value = "simple",  consumes = "application/json;charset=UTF-8")
+    @ResponseStatus(HttpStatus.OK)
+    public Simple handlePostSimple(@RequestBody Simple simple) {
+        System.out.println(simple);
+        log.debug("Entered class = RestfulAndroidJavaController & method = handlePostSimple & Simple simple = {}", simple);
+        return simple;
+    }
+
+
     @PostMapping("bitmap")
     @ResponseStatus(HttpStatus.OK)
     public Token handlePostBitmap(@RequestBody Bitmap bitmap) {
@@ -35,7 +46,7 @@ public class RestfulAndroidJavaController {
         return repository.getRecordByEnglishName(englishName);
     }
 
-    @GetMapping("records/LAT/{latinName}")
+    @GetMapping(value = "records/LAT/{latinName}",  consumes = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.OK)
     public Plant handleGetRecordbyLatinName(@PathVariable String latinName) {
         log.debug("Entered class = RestfulAndroidJavaController & method = handleGetRecordbyLatinName & String latinName = {}", latinName);

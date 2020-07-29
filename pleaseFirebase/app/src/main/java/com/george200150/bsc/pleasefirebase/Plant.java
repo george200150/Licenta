@@ -1,4 +1,4 @@
-package com.george200150.bsc.pleasework;
+package com.george200150.bsc.pleasefirebase;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -183,5 +183,26 @@ public class Plant {
 
     public void setBloomingSeason(Interval bloomingSeason) {
         this.bloomingSeason = bloomingSeason;
+    }
+
+    @Override
+    public String toString() {
+        return "Plant{" +
+                "id=" + id +
+                ", englishName='" + englishName + '\'' +
+                ", latinName='" + latinName + '\'' +
+                ", kingdom='" + kingdom + '\'' +
+                ", clades=" + clades +
+                ", division='" + division + '\'' +
+                ", plantClass='" + plantClass + '\'' +
+                ", order='" + order + '\'' +
+                ", family='" + family + '\'' +
+                ", subFamily='" + subFamily + '\'' +
+                ", genus='" + genus + '\'' +
+                ", species='" + species + '\'' +
+                ", location=" + location +
+                ", greeningSeason=" + greeningSeason +
+                ", bloomingSeason=" + bloomingSeason +
+                '}';
     }
 }
