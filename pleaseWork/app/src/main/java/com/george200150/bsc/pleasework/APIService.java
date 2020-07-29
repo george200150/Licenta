@@ -7,7 +7,6 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 public interface APIService {
     @POST("/posts")
@@ -19,8 +18,10 @@ public interface APIService {
 
     ////////////////////////////////////////////////
     @POST("/data/simple")
-    @FormUrlEncoded
-    Call<Simple> simple(@Field("id") int id);
+    Call<Simple> simple(@Body String id);
+
+    @POST("/data/simple")
+    Call<Simple> complex(@Body Simple id);
     ////////////////////////////////////////////////
 
     @POST("/create")
