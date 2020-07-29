@@ -10,5 +10,3 @@ Trebuie ca predictiile care ajung in Java sa fie foarte bune, rezultatul este co
 poate ar trebui sa returnez o lista de rezultate...
 
 # 3. Trebuie sa refactorizez codul de python - este oop + functional si nu se mai intelege nimic.
-
-# 4. Trebuie Merge-uite proiectele de Android. Small steps..

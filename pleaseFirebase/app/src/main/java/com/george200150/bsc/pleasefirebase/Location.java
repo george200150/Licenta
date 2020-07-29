@@ -35,4 +35,12 @@ public class Location {
     public void setDecimalDegreesE(Double decimalDegreesE) {
         this.decimalDegreesE = decimalDegreesE;
     }
+
+    @Override
+    public String toString() {
+        return "Location{" +
+                "decimalDegreesN=" + decimalDegreesN +
+                ", decimalDegreesE=" + decimalDegreesE +
+                '}';
+    }
 }

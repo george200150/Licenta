@@ -36,4 +36,12 @@ public class Interval {
     public void setEndMonth(int endMonth) {
         this.endMonth = endMonth;
     }
+
+    @Override
+    public String toString() {
+        return "Interval{" +
+                "startMonth=" + startMonth +
+                ", endMonth=" + endMonth +
+                '}';
+    }
 }

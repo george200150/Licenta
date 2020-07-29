@@ -57,7 +57,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     public void sendLatinName(String latinName) {
 
-        mAPIService.sendLatinGET("Acer pseudoplatanus").enqueue(new Callback<Plant>() {
+        mAPIService.sendLatinGET(latinName).enqueue(new Callback<Plant>() {
             @Override
             public void onResponse(Call<Plant> call, Response<Plant> response) {
 

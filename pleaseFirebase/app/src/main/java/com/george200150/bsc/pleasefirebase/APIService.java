@@ -11,6 +11,6 @@ public interface APIService {
     @POST("/data/bitmap")
     Call<Plant> sendBitmapPOST(@Body Bitmap bitmap);
 
-    @GET("/data/LAT/{name}")
+    @GET("/data/records/LAT/{name}")
     Call<Plant> sendLatinGET(@Path("name") String name);
 }

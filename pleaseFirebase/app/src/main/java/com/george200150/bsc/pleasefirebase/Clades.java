@@ -24,4 +24,11 @@ public class Clades {
     public void setClades(List<String> clades) {
         this.clades = clades;
     }
+
+    @Override
+    public String toString() {
+        return "Clades{" +
+                "clades=" + clades +
+                '}';
+    }
 }

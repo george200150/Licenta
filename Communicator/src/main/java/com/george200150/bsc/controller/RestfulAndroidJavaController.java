@@ -46,7 +46,7 @@ public class RestfulAndroidJavaController {
         return repository.getRecordByEnglishName(englishName);
     }
 
-    @GetMapping(value = "records/LAT/{latinName}",  consumes = "application/json;charset=UTF-8")
+    @GetMapping(value = "records/LAT/{latinName}",  consumes = "application/text;charset=UTF-8")
     @ResponseStatus(HttpStatus.OK)
     public Plant handleGetRecordbyLatinName(@PathVariable String latinName) {
         log.debug("Entered class = RestfulAndroidJavaController & method = handleGetRecordbyLatinName & String latinName = {}", latinName);
