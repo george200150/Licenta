@@ -11,6 +11,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,12 +23,14 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static TextView mResponseTv2; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
     private TextView mResponseTv;
 
     private APIService mAPIService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -34,8 +38,13 @@ public class MainActivity extends AppCompatActivity {
         final EditText bodyEt = (EditText) findViewById(R.id.et_body);
         Button submitBtn = (Button) findViewById(R.id.btn_submit);
         mResponseTv = (TextView) findViewById(R.id.tv_response);
+        mResponseTv2 = (TextView) findViewById(R.id.tv_response2);
 
         mAPIService = ApiUtils.getAPIService();
+
+        // TODO : DEBUG PURPOSES ONLY// TODO : DEBUG PURPOSES ONLY// TODO : DEBUG PURPOSES ONLY
+        // FirebaseMessaging.getInstance().subscribeToTopic("_TOKEN_");
+        // TODO : DEBUG PURPOSES ONLY// TODO : DEBUG PURPOSES ONLY// TODO : DEBUG PURPOSES ONLY
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,24 +89,37 @@ public class MainActivity extends AppCompatActivity {
         pixels.add(white);
 
         bitmap.setPixels(pixels);
-        mAPIService.sendBitmapPOST(bitmap).enqueue(new Callback<Plant>() {
+        mAPIService.sendBitmapPOST(bitmap).enqueue(new Callback<Token>() {
             @Override
-            public void onResponse(Call<Plant> call, Response<Plant> response) {
+            public void onResponse(Call<Token> call, Response<Token> response) {
 
                 if(response.isSuccessful()) {
                     showResponse(response.body().toString());
-                    Log.i(TAG, "post submitted to API." + response.body().toString());
-                }
+                    Token token = response.body();
+                    Log.i(TAG, "post submitted to API." + token.toString());
 
+                    // TODO: subscribe to the "TOKEN" topic
+                    String TOPIC = token.toString();
+
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // TODO: nu da cine trebuie subscribe la topic !!!!!!!!!
+                    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                    subscribeToTopic(TOPIC);
+                }
             }
 
             @Override
-            public void onFailure(Call<Plant> call, Throwable t) {
+            public void onFailure(Call<Token> call, Throwable t) {
 
                 showErrorMessage();
                 Log.e(TAG, "Unable to submit post to API: {}", t);
             }
         });
+    }
+
+    private void subscribeToTopic(String topic){
+        FirebaseMessaging.getInstance().subscribeToTopic(topic);
     }
 
     public void showResponse(String response) {

@@ -9,7 +9,7 @@ import retrofit2.http.Path;
 public interface APIService {
 
     @POST("/data/bitmap")
-    Call<Plant> sendBitmapPOST(@Body Bitmap bitmap);
+    Call<Token> sendBitmapPOST(@Body Bitmap bitmap);
 
     @GET("/data/records/LAT/{name}")
     Call<Plant> sendLatinGET(@Path("name") String name);

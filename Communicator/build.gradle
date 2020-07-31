@@ -9,6 +9,7 @@ version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
 repositories {
+    google()
     mavenCentral()
 }
 
@@ -57,5 +58,14 @@ dependencies {
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
     compile group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0-alpha1'
+
+
+    implementation 'com.google.firebase:firebase-admin:6.15.0'
+
+    // https://mvnrepository.com/artifact/com.google.gms/google-services
+    runtime group: 'com.google.gms', name: 'google-services', version: '4.3.3'
+
+    // https://mvnrepository.com/artifact/org.json/json
+    compile group: 'org.json', name: 'json', version: '20200518'
 
 }

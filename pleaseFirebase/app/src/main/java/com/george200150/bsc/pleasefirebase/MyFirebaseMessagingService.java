@@ -1,7 +1,9 @@
 package com.george200150.bsc.pleasefirebase;
 
 import android.util.Log;
+import android.view.View;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -14,44 +16,48 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = MyFirebaseMessagingService.class.getSimpleName();
     private APIService mAPIService;
 
+    private String TOPIC = null;
+
     public MyFirebaseMessagingService(){
         mAPIService = ApiUtils.getAPIService();
     }
 
-    @Override
-    public void onNewToken(String s) {
-        super.onNewToken(s);
-        Log.e("newToken", s);
-        getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply();
-    }
+//    @Override
+//    public void onNewToken(String s) {
+//        super.onNewToken(s);
+//        Log.e("newToken", s);
+//        getSharedPreferences("_", MODE_PRIVATE).edit().putString("fb", s).apply(); // no idea what this does..
+//    }
 
 
-    // TODO: DOES NOT WORK WHEN APP IS CLOSED !!! (WHEN YOU CLICK ON NOTIFICATION ICON)
+    // TODO: DOES NOT WORK WHEN APP IS CLOSED OR IN BACKGROUND !!! (WHEN YOU CLICK ON NOTIFICATION ICON)
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
-
-
-// TODO: nici macar nu intra aici
-//        if (remoteMessage.getData().size() > 0) {
-//            //sendLatinName();
-//            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-//
-//            if (/* Check if data needs to be processed by long running job */ true) {
-//                // For long-running tasks (10 seconds or more) use WorkManager.
-//                System.out.println("scheduleJob();");
-//            } else {
-//                // Handle message within 10 seconds
-//                System.out.println("handleNow();");
+        if (remoteMessage.getData().size() > 0) {
+            TOPIC = remoteMessage.getData().get("TOPIC");
+            FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
+        }
+//        else{
+//            if (TOPIC != null){
+//                FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+//                TOPIC = null;
 //            }
 //        }
+
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
-            String latinName = remoteMessage.getNotification().getBody();
-            this.sendLatinName(latinName);
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            String message = remoteMessage.getNotification().getBody();
+            if (message != null && !message.contains("_TOKEN_")){
+                String latinName = message;
+                this.sendLatinName(latinName);
+                Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+            }
+            else{
+                // this is just the...hmm... nothing else should be here... only one message, right?
+            }
         }
     }
 
@@ -63,23 +69,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if(response.isSuccessful()) {
 
+//                    // TODO: unsubscribe from topic (if not null???)
+//                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+//                    TOPIC = null;
 
-                    Log.d(TAG, response.body().toString());
-                    System.out.println("showResponse(response.body().toString());");
-
+                    Log.d(TAG, "THIS IS THE BIG RESPONSE, DADDY-O'" + response.body().toString());
 
                     Log.i(TAG, "post submitted to API." + response.body().toString());
-                }
 
+                    if(MainActivity.mResponseTv2.getVisibility() == View.GONE) {
+                        MainActivity.mResponseTv2.setVisibility(View.VISIBLE);
+                    }
+                    MainActivity.mResponseTv2.setText(response.body().toString());
+                }
             }
 
             @Override
             public void onFailure(Call<Plant> call, Throwable t) {
 
-
                 Log.d(TAG, t.toString());
                 System.out.println("showErrorMessage();");
 
+                // TODO: should retry... (or, at least notify user and unsubscribe)
 
                 Log.e(TAG, "Unable to submit post to API: {}", t);
             }

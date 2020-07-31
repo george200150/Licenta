@@ -25,10 +25,10 @@ public class RestfulAndroidJavaController {
 
     @PostMapping(value = "simple",  consumes = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.OK)
-    public Simple handlePostSimple(@RequestBody Simple simple) {
+    public Simple handlePostSimple(@RequestBody String simple) {
         System.out.println(simple);
         log.debug("Entered class = RestfulAndroidJavaController & method = handlePostSimple & Simple simple = {}", simple);
-        return simple;
+        return new Simple("500");
     }
 
 
@@ -46,7 +46,7 @@ public class RestfulAndroidJavaController {
         return repository.getRecordByEnglishName(englishName);
     }
 
-    @GetMapping(value = "records/LAT/{latinName}",  consumes = "application/text;charset=UTF-8")
+    @GetMapping(value = "records/LAT/{latinName}"/*,  consumes = "application/text;charset=UTF-8"*/)
     @ResponseStatus(HttpStatus.OK)
     public Plant handleGetRecordbyLatinName(@PathVariable String latinName) {
         log.debug("Entered class = RestfulAndroidJavaController & method = handleGetRecordbyLatinName & String latinName = {}", latinName);
