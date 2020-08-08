@@ -26,5 +26,3 @@ public class HeaderRequestInterceptor implements ClientHttpRequestInterceptor {
         return execution.execute(wrapper, body);
     }
 }
-
-// Remember to copy your Server Key at the first step to FIREBASE_SERVER_KEY.

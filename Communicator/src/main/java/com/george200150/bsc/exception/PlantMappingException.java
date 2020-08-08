@@ -1,6 +1,5 @@
 package com.george200150.bsc.exception;
 
-
 public class PlantMappingException extends RuntimeException {
 
     private static final long serialVersionUID = 2L;

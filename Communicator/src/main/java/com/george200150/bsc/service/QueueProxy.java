@@ -13,20 +13,13 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Payload;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
 
 // HAVE DONE TO SETUP:
 // -> created new DIRECT EXCHANGE "PythonExchange.IN" from UI
@@ -51,16 +44,10 @@ public class QueueProxy {
     @Value("${spring.queues.routing.send}") // http://localhost:15672/#/queues/%2F/Licenta.PythonQueue
     private String routingKey;
 
-    public Token send(Bitmap bitmap) {
-        log.debug("Entered class = QueueProxy & method = send & Bitmap bitmap = {}", bitmap);
+    public Token send(ForwardMessage forwardMessage) {
+        log.debug("Entered class = QueueProxy & method = send & ForwardMessage forwardMessage = {}", forwardMessage);
         // TODO: Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
-        Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
-        //  does not work... apparently
-        // Token token = new Token("_TOKEN_");
-
-        ForwardMessage forwardMessage = new ForwardMessage();
-        forwardMessage.setBitmap(bitmap);
-        forwardMessage.setToken(token);
+        Token token = forwardMessage.getToken();
 
         try {
             log.debug("Entered try in send & ForwardMessage forwardMessage = {}", forwardMessage);
@@ -77,7 +64,6 @@ public class QueueProxy {
         log.debug("Exiting class = QueueProxy & method = send & return Token token = {}", token);
         return token;
     }
-
 
     @RabbitListener(queues = "${spring.queues.name.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
     public void handlePythonMessage(@Payload final byte[] byteMessage) {
@@ -99,7 +85,7 @@ public class QueueProxy {
             log.debug("retrieved plant from DB in handlePythonMessage & Plant plant = {}", plant);
 
             // TODO: create push notification for map[token] client
-            sendToToken(token);
+            sendPlantToToken(plant, token);
 
             log.debug("Exit try in handlePythonMessage");
         } catch (JsonProcessingException e) {
@@ -109,60 +95,46 @@ public class QueueProxy {
         log.debug("Exit class = QueueProxy & method = handlePythonMessage & return = void");
     }
 
-    public void sendToToken(Token token) { // TODO: use token to submit message to topic = "TOKEN"
-        // [START send_to_token]
-        // This registration token comes from the client FCM SDKs.
-        //String registrationToken = "dSV-dAHPRtySIGd75u_C7V:APA91bHkep2rgZOJrRERFhrwV1FiDtTE9anGU-T02aODoyJoU4o0yV26XjjC_9Qtoi8EzFWr43jvRVTHIExSmHDNUeM-2qtiJLTgbgfBJhL--kWrPt5vRHV0lzJYI6-XATPQ9vbGTwC6";
+    public void sendPlantToToken(Plant plant, Token token) {
 
-//        String TOPIC = token.getMessage();
-//
-//        JSONObject body = new JSONObject();
-//        body.put("to", "/topics/" + TOPIC);
-//        body.put("priority", "high");
-//
-//        JSONObject notification = new JSONObject();
-//        notification.put("title", "Your search result is here!");
-//        notification.put("body", "Acer");
-//
-//        JSONObject data = new JSONObject();
-//        data.put("TOPIC", token.getMessage());
-//
-//        body.put("notification", notification);
-//        body.put("data", data);
-//
-//
-//        HttpEntity<String> request = new HttpEntity<>(body.toString());
-//
-//        CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
-//        CompletableFuture.allOf(pushNotification).join();
-//        String firebaseResponse = "FAILED!!!";
-//
-//        try {
-//            firebaseResponse = pushNotification.get();
-//
-//            //return new ResponseEntity<>(firebaseResponse, HttpStatus.OK);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
+        /////////////////////////////////////////////////////////
+        String TOPIC = token.getMessage();
 
-//        System.out.println("Successfully sent message: " + firebaseResponse);
-        // [END send_to_token]
+        JSONObject body = new JSONObject();
+        body.put("to", "/topics/" + TOPIC);
+        body.put("priority", "high");
 
-        // TODO: +/- TESTING PURPOSES - CREATE (POST IN THE END) GET REQUEST FOR THIS URL: http://localhost:8080/send/_TOKEN_
-        RestTemplate restTemplate = new RestTemplate();
+        JSONObject notification = new JSONObject();
+        notification.put("title", "Your search result is here!");
+        notification.put("body", plant.getEnglishName());
 
-        HttpEntity<String> httpEntity = new HttpEntity<String>(token.getMessage(), null);
+        JSONObject data = new JSONObject();
+        data.put("TOPIC", token);
+        data.put("PLANT", plant);
+        System.out.println(token);
+
+        body.put("notification", notification);
+        body.put("data", data);
+        /////////////////// created JSON object
+        /////////////////////////////////////////////////////////
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        HttpEntity<String> request = new HttpEntity<>(body.toString());
+
+        CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
+        CompletableFuture.allOf(pushNotification).join();
+
         try {
-            //ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/_TOKEN_", HttpMethod.GET, httpEntity, String.class);
-            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/" + token.getMessage(), HttpMethod.GET, httpEntity, String.class);
-            // TODO: ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/" + token.getMessage(), HttpMethod.GET, httpEntity, String.class);
-            //  does not work... or, the network does not work anymore
-            System.out.println(response);
-        }
-        catch (HttpClientErrorException | HttpServerErrorException e) {
+            String firebaseResponse = pushNotification.get();
+            log.debug("Entered try & method = handlePythonMessage & String firebaseResponse = {}", firebaseResponse);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
+        /////////////////// created HTTP request for publishing the notification
+        ////////////////////////////////////////////////////////////////////////////
     }
 }

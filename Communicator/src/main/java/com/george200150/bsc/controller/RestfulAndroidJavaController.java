@@ -21,8 +21,6 @@ public class RestfulAndroidJavaController {
     @Autowired
     private QueueProxy server;
 
-
-
     @PostMapping(value = "simple",  consumes = "application/json;charset=UTF-8")
     @ResponseStatus(HttpStatus.OK)
     public Simple handlePostSimple(@RequestBody String simple) {
@@ -34,9 +32,9 @@ public class RestfulAndroidJavaController {
 
     @PostMapping("bitmap")
     @ResponseStatus(HttpStatus.OK)
-    public Token handlePostBitmap(@RequestBody Bitmap bitmap) {
-        log.debug("Entered class = RestfulAndroidJavaController & method = handlePostCar & Bitmap bitmap = {}", bitmap);
-        return server.send(bitmap);
+    public Token handlePostBitmap(@RequestBody ForwardMessage forwardMessage) {
+        log.debug("Entered class = RestfulAndroidJavaController & method = handlePostCar & ForwardMessage forwardMessage = {}", forwardMessage);
+        return server.send(forwardMessage);
     }
 
     @GetMapping("records/EN/{englishName}")
