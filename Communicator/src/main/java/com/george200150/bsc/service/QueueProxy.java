@@ -53,14 +53,10 @@ public class QueueProxy {
 
     public Token send(Bitmap bitmap) {
         log.debug("Entered class = QueueProxy & method = send & Bitmap bitmap = {}", bitmap);
-        //Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
-        Token token = new Token("_TOKEN_");
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
-        //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN //TODO: ONLY FOR TESTING PURPOSES HARDCODED TOPIC TOKEN
+        // TODO: Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
+        Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
+        //  does not work... apparently
+        // Token token = new Token("_TOKEN_");
 
         ForwardMessage forwardMessage = new ForwardMessage();
         forwardMessage.setBitmap(bitmap);
@@ -159,7 +155,10 @@ public class QueueProxy {
 
         HttpEntity<String> httpEntity = new HttpEntity<String>(token.getMessage(), null);
         try {
-            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/_TOKEN_", HttpMethod.GET, httpEntity, String.class);
+            //ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/_TOKEN_", HttpMethod.GET, httpEntity, String.class);
+            ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/" + token.getMessage(), HttpMethod.GET, httpEntity, String.class);
+            // TODO: ResponseEntity<String> response = restTemplate.exchange("http://localhost:8080/send/" + token.getMessage(), HttpMethod.GET, httpEntity, String.class);
+            //  does not work... or, the network does not work anymore
             System.out.println(response);
         }
         catch (HttpClientErrorException | HttpServerErrorException e) {

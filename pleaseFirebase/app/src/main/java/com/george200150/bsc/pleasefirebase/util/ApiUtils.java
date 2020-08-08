@@ -1,4 +1,6 @@
-package com.george200150.bsc.pleasefirebase;
+package com.george200150.bsc.pleasefirebase.util;
+
+import com.george200150.bsc.pleasefirebase.service.APIService;
 
 public class ApiUtils {
 

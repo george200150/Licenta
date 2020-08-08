@@ -1,4 +1,8 @@
-package com.george200150.bsc.pleasefirebase;
+package com.george200150.bsc.pleasefirebase.service;
+
+import com.george200150.bsc.pleasefirebase.model.Bitmap;
+import com.george200150.bsc.pleasefirebase.model.Plant;
+import com.george200150.bsc.pleasefirebase.model.Token;
 
 import retrofit2.Call;
 import retrofit2.http.Body;

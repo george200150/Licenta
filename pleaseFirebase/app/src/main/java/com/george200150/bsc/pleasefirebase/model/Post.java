@@ -1,4 +1,4 @@
-package com.george200150.bsc.pleasefirebase;
+package com.george200150.bsc.pleasefirebase.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

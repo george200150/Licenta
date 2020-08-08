@@ -1,5 +1,8 @@
-package com.george200150.bsc.pleasefirebase;
+package com.george200150.bsc.pleasefirebase.model;
 
+import com.george200150.bsc.pleasefirebase.model.Clades;
+import com.george200150.bsc.pleasefirebase.model.Interval;
+import com.george200150.bsc.pleasefirebase.model.Location;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

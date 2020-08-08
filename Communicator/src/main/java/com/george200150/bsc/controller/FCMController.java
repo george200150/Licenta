@@ -36,6 +36,7 @@ public class FCMController {
 
         JSONObject data = new JSONObject();
         data.put("TOPIC", token);
+        System.out.println(token);
 
         body.put("notification", notification);
         body.put("data", data);

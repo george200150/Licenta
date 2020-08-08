@@ -1,8 +1,11 @@
-package com.george200150.bsc.pleasefirebase;
+package com.george200150.bsc.pleasefirebase.service;
 
 import android.util.Log;
 import android.view.View;
 
+import com.george200150.bsc.pleasefirebase.util.ApiUtils;
+import com.george200150.bsc.pleasefirebase.MainActivity;
+import com.george200150.bsc.pleasefirebase.model.Plant;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -40,12 +43,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             TOPIC = remoteMessage.getData().get("TOPIC");
             FirebaseMessaging.getInstance().subscribeToTopic(TOPIC);
         }
-//        else{
-//            if (TOPIC != null){
-//                FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
-//                TOPIC = null;
-//            }
-//        }
 
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
@@ -54,9 +51,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 String latinName = message;
                 this.sendLatinName(latinName);
                 Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
-            }
-            else{
-                // this is just the...hmm... nothing else should be here... only one message, right?
             }
         }
     }
@@ -69,9 +63,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 if(response.isSuccessful()) {
 
-//                    // TODO: unsubscribe from topic (if not null???)
-//                    FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
-//                    TOPIC = null;
+                    // unsubscribe from topic (cannot be null)
+                    // TODO: removed for testing FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
+                    TOPIC = null;
 
                     Log.d(TAG, "THIS IS THE BIG RESPONSE, DADDY-O'" + response.body().toString());
 
