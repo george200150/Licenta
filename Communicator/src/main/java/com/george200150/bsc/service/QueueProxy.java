@@ -3,6 +3,7 @@ package com.george200150.bsc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george200150.bsc.exception.CustomRabbitException;
+import com.george200150.bsc.exception.PushNotificationException;
 import com.george200150.bsc.exception.QueueProxyException;
 import com.george200150.bsc.model.*;
 import com.george200150.bsc.persistence.PlantDataBaseRepository;
@@ -28,7 +29,6 @@ import org.json.JSONObject;
 
 @Slf4j
 public class QueueProxy {
-
     @Autowired
     AndroidPushNotificationsService androidPushNotificationsService;
 
@@ -46,7 +46,6 @@ public class QueueProxy {
 
     public Token send(ForwardMessage forwardMessage) {
         log.debug("Entered class = QueueProxy & method = send & ForwardMessage forwardMessage = {}", forwardMessage);
-        // TODO: Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
         Token token = forwardMessage.getToken();
 
         try {
@@ -84,20 +83,19 @@ public class QueueProxy {
             Plant plant = repository.getRecordByLatinName(text);
             log.debug("retrieved plant from DB in handlePythonMessage & Plant plant = {}", plant);
 
-            // TODO: create push notification for map[token] client
-            sendPlantToToken(plant, token);
+            sendPlantToToken(plant, token); // THIS THROWS PushNotificationException IN CASE PUSH NOTIFICATION HAS A PROBLEM
 
             log.debug("Exit try in handlePythonMessage");
-        } catch (JsonProcessingException e) {
-            log.debug("Throw in handlePythonMessage & JsonProcessingException e = {}", e);
+        } catch (JsonProcessingException | PushNotificationException e) {
+            log.debug("Throw in handlePythonMessage & JsonProcessingException | PushNotificationException e = {}", e);
             throw new QueueProxyException(e);
         }
         log.debug("Exit class = QueueProxy & method = handlePythonMessage & return = void");
     }
 
     public void sendPlantToToken(Plant plant, Token token) {
-
-        /////////////////////////////////////////////////////////
+        log.debug("Entered class = QueueProxy & method = sendPlantToToken & Plant plant = {} & Token token = {}", plant, token);
+        ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
         JSONObject body = new JSONObject();
@@ -115,26 +113,23 @@ public class QueueProxy {
 
         body.put("notification", notification);
         body.put("data", data);
-        /////////////////// created JSON object
-        /////////////////////////////////////////////////////////
+        log.debug("created JSONObject body = {}", body);
 
 
-
-        ////////////////////////////////////////////////////////////////////////////
         HttpEntity<String> request = new HttpEntity<>(body.toString());
+        log.debug("created HttpEntity<String> request = {}", request);
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
         CompletableFuture.allOf(pushNotification).join();
-
+        log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification);
         try {
+            log.debug("Entered try in sendPlantToToken");
             String firebaseResponse = pushNotification.get();
-            log.debug("Entered try & method = handlePythonMessage & String firebaseResponse = {}", firebaseResponse);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
+            log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendPlantToToken & String firebaseResponse = {}", firebaseResponse);
+        } catch (InterruptedException | ExecutionException e) {
+            log.debug("Throw in sendPlantToToken & InterruptedException | ExecutionException e = {}", e);
+            throw new PushNotificationException(e);
         }
-        /////////////////// created HTTP request for publishing the notification
-        ////////////////////////////////////////////////////////////////////////////
+        log.debug("Exit class = QueueProxy & method = sendPlantToToken & return = void");
     }
 }

@@ -21,9 +21,9 @@ class PredictionMapper:
 class PixelMapper:
     @staticmethod
     def map(pixel):
-        r = int(pixel['r'])
-        g = int(pixel['g'])
-        b = int(pixel['b'])
+        r = int(pixel['R'])
+        g = int(pixel['G'])
+        b = int(pixel['B'])
         return (r,g,b)
 
 
@@ -31,19 +31,17 @@ class PixelMapper:
 class HardProcessor:
     @staticmethod
     def process(height, width, RGBpixels):
-        #predictionsList = [['a', randint(70,100)],['c', randint(70,100)],['e', randint(70,100)],['r', randint(70,100)]]
-        
-        img = Image.new( 'RGB', (height,width), "black") # Create a new black image
+        img = Image.new( 'RGB', (width, height), "black") # Create a new black image
         pixels = img.load() # Create the pixel map
-        for i in range(img.size[0]):    # For every pixel:
-            for j in range(img.size[1]):
-                print(pixels[i,j])
-                pixels[i, j] = RGBpixels[height*i+j]
+        print("height = ",height)
+        print("width = ",width)
         
+        for i in range(0, width*height):
+            pixels[i%width, i//width] = RGBpixels[i]
         # DEBUG
         img.show()
-        
         ############################################################################################################################################
+        
         information = pytesseract.image_to_data(img)#, lang, config, nice, output_type, timeout, pandas_config)
         print(information)
         print()
@@ -61,7 +59,7 @@ class MainProcessor:
     def process(self, jsonBitmap):
         
         # // whatever ...
-        print(jsonBitmap)
+        #print(jsonBitmap)
         h = jsonBitmap['height']
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
@@ -83,7 +81,7 @@ class MainProcessor:
 
 def process(completeMessageJSON):
     
-    print("IN PROCESS: ", completeMessageJSON)
+    #print("IN PROCESS: ", completeMessageJSON)
     
     # THIS IS TEMPORARY
     #time.sleep(10)
@@ -111,11 +109,11 @@ def process(completeMessageJSON):
 
 # LISTENER
 def callback(ch, method, properties, body):
-    print(" [x] Received %r" % body)
+    #print(" [x] Received %r" % body)
     
     parsedMessageString = json.loads(body) # - from bytes to string
     parsedMessageJSON = json.loads(parsedMessageString) # - from string to dict
-    print(parsedMessageJSON)
+    #print(parsedMessageJSON)
     
     # this is good concurency
     #executor.submit(process, parsedMessageJSON)
