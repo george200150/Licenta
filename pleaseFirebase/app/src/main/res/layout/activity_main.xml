@@ -36,7 +36,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="321dp"
+        android:layout_height="155dp"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <Button
@@ -44,6 +44,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TAKE PHOTO" />
+
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="UPLOAD PHOTO" />
 
     <Button
         android:id="@+id/btn_submit"

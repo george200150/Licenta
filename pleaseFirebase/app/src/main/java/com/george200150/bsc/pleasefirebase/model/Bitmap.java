@@ -3,8 +3,6 @@ package com.george200150.bsc.pleasefirebase.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.List;
-
 public class Bitmap {
     @SerializedName("height")
     @Expose
@@ -17,7 +15,12 @@ public class Bitmap {
 
     @SerializedName("pixels")
     @Expose
-    private List<Pixel> pixels;
+    private byte[] pixels;
+//    private List<Pixel> pixels;
+
+    public void setPixels(byte[] pixels) {
+        this.pixels = pixels;
+    }
 
     public int getHeight() {
         return height;
@@ -35,12 +38,12 @@ public class Bitmap {
         this.width = width;
     }
 
-    public List<Pixel> getPixels() {
-        return pixels;
-    }
+//    public List<Pixel> getPixels() {
+//        return pixels;
+//    }
 
-    public void setPixels(List<Pixel> pixels) {
-        this.pixels = pixels;
-    }
+//    public void setPixels(List<Pixel> pixels) {
+//        this.pixels = pixels;
+//    }
 }
 

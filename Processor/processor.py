@@ -68,18 +68,42 @@ class MainProcessor:
         h = jsonBitmap['height']
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
+
+        something = [elem.encode() for elem in pixelsList]
+        encoded_something = pixelsList.encode()
+        print(encoded_something)
+        print(something)
+        encoded_string = pixelsList.encode()
+        bytess = bytearray(encoded_string)
+        print(bytess)
+        # mv = memoryview(pixelsList).cast('H')
+        # print(mv[0], mv[1], mv[2])
+
         pixels = []
-        for pixel in pixelsList:
-            pixels.append(PixelMapper.map(pixel))
+        # for pixel in pixelsList:
+        #     pixels.append(PixelMapper.map(pixel))
+        index = 0
+        try:
+            while True:
+                r = pixelsList[index]
+                g = pixelsList[index + 1]
+                b = pixelsList[index + 2]
+                index += 3
+                pixels.append((r, g, b))
+                pass
+        except IndexError:
+            pass  # finished pixels
 
         predictionsList = HardProcessor.process(h, w, pixels)
         predictionsListFormatted = []
 
-        for prediction in predictionsList:
-            predictionsListFormatted.append(PredictionMapper.map(prediction))
+        # for prediction in predictionsList:
+        #     predictionsListFormatted.append(PredictionMapper.map(prediction))
 
-        print(len(predictionsListFormatted))
-        return predictionsListFormatted[:100]
+        # print(len(predictionsListFormatted))
+        # return predictionsListFormatted[:100]
+        print(len(predictionsList))
+        return predictionsList[:len(predictionsList)//2]  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
 
 
 # import time
@@ -108,7 +132,7 @@ def process(completeMessageJSON):
                           properties=pika.BasicProperties(
                               delivery_mode=2,  # make message persistent
                           ))
-    print(" [x] Sent %r" % message)
+    # print(" [x] Sent %r" % message)
     connection.close()
 
 

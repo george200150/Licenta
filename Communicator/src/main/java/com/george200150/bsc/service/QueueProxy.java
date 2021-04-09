@@ -46,7 +46,14 @@ public class QueueProxy {
 
         try {
             log.debug("Entered try in send & ForwardMessage forwardMessage = {}", forwardMessage);
-            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(forwardMessage);
+
+            String pixelBytes = new String(forwardMessage.getBitmap().getPixels());
+//            byte[] byteArrray = pixelBytes.getBytes();
+//            System.out.println(byteArrray);
+            WrapperForwardMessage wrapperForwardMessage = new WrapperForwardMessage(forwardMessage, pixelBytes);
+
+//            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(forwardMessage);
+            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(wrapperForwardMessage);
 
             log.debug("Extracted JSON in send & String json = {}", json);
 
@@ -70,7 +77,8 @@ public class QueueProxy {
             log.debug("Entered try in handlePythonMessage & String jsonMessage = {}", jsonMessage);
             backMessage = mapper.readValue(jsonMessage, BackMessage.class);
 
-            List<Pixel> predictedImage = backMessage.getPreds();
+//            List<Pixel> predictedImage = backMessage.getPreds();
+            byte[] predictedImage = backMessage.getPreds();
             Token token = backMessage.getToken();
 
             log.debug("received predictions in handlePythonMessage & List<Prediction> predictedImage = {}", predictedImage);
@@ -80,6 +88,7 @@ public class QueueProxy {
 //            log.debug("retrieved plant from DB in handlePythonMessage & Plant plant = {}", plant);
 
 //            sendImageAndToken(plant, token); // THIS THROWS PushNotificationException IN CASE PUSH NOTIFICATION HAS A PROBLEM
+//            sendImageAndToken(predictedImage, token); // TODO: refactor this for SS/DE
             sendImageAndToken(predictedImage, token); // TODO: refactor this for SS/DE
 
             log.debug("Exit try in handlePythonMessage");
@@ -91,8 +100,8 @@ public class QueueProxy {
     }
 
 //    public void sendImageAndToken(Plant plant, Token token) {
-    public void sendImageAndToken(List<Pixel> predictedImage, Token token) {
-//        log.debug("Entered class = QueueProxy & method = sendImageAndToken & Plant plant = {} & Token token = {}", plant, token);
+    public void sendImageAndToken(byte[] predictedImage, Token token) {
+        log.debug("Entered class = QueueProxy & predictedImage = sendImageAndToken & Plant plant = {} & Token token = {}", predictedImage, token);
         ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
@@ -125,10 +134,19 @@ public class QueueProxy {
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
 
-        // TODO: could UPLOAD the PHOTO on the internet, and NOTIFY the user with the image's LINK...
+        // TODO: could also send multiple "paged" notification such as
+        //  {"batch_no": 16, "preds": [pixels]} and rebuild the whole image on client side based on batch_no
+        //  (race condition?)
+
+        // TODO: could UPLOAD the PHOTO on the internet, and NOTIFY the user with the image's LINK and download the IMAGE on CLIENT SIDE
+
         // 1000 pixel images are too big (needed size == 187500)
-        // TODO: Caused by: org.springframework.web.client.HttpClientErrorException$BadRequest: 400 Bad Request: [{"error":"MessageTooBig"}]
-        // Check that the total size of the payload data included in a message does not exceed FCM limits: 4096 bytes for most messages, or 2048 bytes in the case of messages to topics. This includes both the keys and the values
+        // TODO: Caused by: org.springframework.web.client.HttpClientErrorException$BadRequest:
+        //  400 Bad Request: [{"error":"MessageTooBig"}]
+
+        // Check that the total size of the payload data included in a message does not exceed FCM limits:
+        // 4096 bytes for most messages, or 2048 bytes in the case of messages to topics.
+        // This includes both the keys and the values
 
         CompletableFuture.allOf(pushNotification).join();
         log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification);
@@ -137,7 +155,7 @@ public class QueueProxy {
             String firebaseResponse = pushNotification.get();
             log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendImageAndToken & String firebaseResponse = {}", firebaseResponse);
         } catch (InterruptedException | ExecutionException e) {
-            log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = {}", e);
+            log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = { }", e);
             throw new PushNotificationException(e);
         }
         log.debug("Exit class = QueueProxy & method = sendImageAndToken & return = void");
