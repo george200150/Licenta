@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.setContext(this);
         setContentView(R.layout.activity_main);
 
-        final EditText titleEt = (EditText) findViewById(R.id.et_title);
+        final EditText titleEt = (EditText) findViewById(R.id.et_title); // the fields serve no purpose
         final EditText bodyEt = (EditText) findViewById(R.id.et_body);
         Button submitBtn = (Button) findViewById(R.id.btn_submit);
         button = (Button) findViewById(R.id.button);
