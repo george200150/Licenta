@@ -17,7 +17,7 @@ pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tessera
 class PredictionMapper:
     @staticmethod
     def map(pixel):
-        pixDict = {'character': pixel[0], 'percentage': pixel[1]}
+        pixDict = {'R': pixel[0], 'G': pixel[1], 'B': pixel[2]}
         return pixDict
 
 
@@ -54,8 +54,9 @@ class HardProcessor:
         print(outputedText)
         ################################################################################################################
 
-        predictionsList = [['a', randint(70, 100)], ['c', randint(70, 100)], ['e', randint(70, 100)],
-                           ['r', randint(70, 100)]]
+        # predictionsList = [['a', randint(70, 100)], ['c', randint(70, 100)], ['e', randint(70, 100)],
+        #                    ['r', randint(70, 100)]]
+        predictionsList = RGBpixels
         return predictionsList
 
 
@@ -77,7 +78,8 @@ class MainProcessor:
         for prediction in predictionsList:
             predictionsListFormatted.append(PredictionMapper.map(prediction))
 
-        return predictionsListFormatted
+        print(len(predictionsListFormatted))
+        return predictionsListFormatted[:100]
 
 
 # import time

@@ -6,9 +6,8 @@ import com.george200150.bsc.exception.CustomRabbitException;
 import com.george200150.bsc.exception.PushNotificationException;
 import com.george200150.bsc.exception.QueueProxyException;
 import com.george200150.bsc.model.*;
-import com.george200150.bsc.persistence.PlantDataBaseRepository;
 import com.george200150.bsc.util.MessageProducer;
-import com.george200150.bsc.util.ParseBuilder;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,6 @@ public class QueueProxy {
     @Autowired
     private MessageProducer producer;
 
-    @Autowired
-    private PlantDataBaseRepository repository;
-
     @Value("${spring.queues.routing.send}") // http://localhost:15672/#/queues/%2F/Licenta.PythonQueue
     private String routingKey;
 
@@ -69,21 +65,22 @@ public class QueueProxy {
         log.debug("Entered class = QueueProxy & method = handlePythonMessage & final byte[] byteMessage = {}", byteMessage);
 
         String jsonMessage = new String(byteMessage);
-        BackMessage backMessage;
+        BackMessage backMessage; // TODO: BackMessage should now contain a Photo
         try {
             log.debug("Entered try in handlePythonMessage & String jsonMessage = {}", jsonMessage);
             backMessage = mapper.readValue(jsonMessage, BackMessage.class);
 
-            List<Prediction> predictions = backMessage.getPreds();
+            List<Pixel> predictedImage = backMessage.getPreds();
             Token token = backMessage.getToken();
 
-            log.debug("received predictions in handlePythonMessage & List<Prediction> predictions = {}", predictions);
-            String text = ParseBuilder.parse(predictions);
-            log.debug("built text from predictions in handlePythonMessage & String text = {}", text);
-            Plant plant = repository.getRecordByLatinName(text);
-            log.debug("retrieved plant from DB in handlePythonMessage & Plant plant = {}", plant);
+            log.debug("received predictions in handlePythonMessage & List<Prediction> predictedImage = {}", predictedImage);
+//            String text = ParseBuilder.parse(predictedImage);
+//            log.debug("built text from predictions in handlePythonMessage & String text = {}", text);
+//            Plant plant = repository.getRecordByLatinName(text);
+//            log.debug("retrieved plant from DB in handlePythonMessage & Plant plant = {}", plant);
 
-            sendPlantToToken(plant, token); // THIS THROWS PushNotificationException IN CASE PUSH NOTIFICATION HAS A PROBLEM
+//            sendImageAndToken(plant, token); // THIS THROWS PushNotificationException IN CASE PUSH NOTIFICATION HAS A PROBLEM
+            sendImageAndToken(predictedImage, token); // TODO: refactor this for SS/DE
 
             log.debug("Exit try in handlePythonMessage");
         } catch (JsonProcessingException | PushNotificationException e) {
@@ -93,8 +90,9 @@ public class QueueProxy {
         log.debug("Exit class = QueueProxy & method = handlePythonMessage & return = void");
     }
 
-    public void sendPlantToToken(Plant plant, Token token) {
-        log.debug("Entered class = QueueProxy & method = sendPlantToToken & Plant plant = {} & Token token = {}", plant, token);
+//    public void sendImageAndToken(Plant plant, Token token) {
+    public void sendImageAndToken(List<Pixel> predictedImage, Token token) {
+//        log.debug("Entered class = QueueProxy & method = sendImageAndToken & Plant plant = {} & Token token = {}", plant, token);
         ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
@@ -104,11 +102,17 @@ public class QueueProxy {
 
         JSONObject notification = new JSONObject();
         notification.put("title", "Your search result is here!");
-        notification.put("body", plant.getEnglishName());
+//        notification.put("body", plant.getEnglishName());
 
         JSONObject data = new JSONObject();
         data.put("TOPIC", token);
-        data.put("PLANT", plant);
+//        data.put("PLANT", predictedImage.toString());
+//        data.put("PLANT", "YEE_HAAAAAAA");
+
+        String json = new Gson().toJson(predictedImage);
+        data.put("PLANT", json);
+
+
         System.out.println(token);
 
         body.put("notification", notification);
@@ -120,16 +124,22 @@ public class QueueProxy {
         log.debug("created HttpEntity<String> request = {}", request);
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
+
+        // TODO: could UPLOAD the PHOTO on the internet, and NOTIFY the user with the image's LINK...
+        // 1000 pixel images are too big (needed size == 187500)
+        // TODO: Caused by: org.springframework.web.client.HttpClientErrorException$BadRequest: 400 Bad Request: [{"error":"MessageTooBig"}]
+        // Check that the total size of the payload data included in a message does not exceed FCM limits: 4096 bytes for most messages, or 2048 bytes in the case of messages to topics. This includes both the keys and the values
+
         CompletableFuture.allOf(pushNotification).join();
         log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification);
         try {
-            log.debug("Entered try in sendPlantToToken");
+            log.debug("Entered try in sendImageAndToken");
             String firebaseResponse = pushNotification.get();
-            log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendPlantToToken & String firebaseResponse = {}", firebaseResponse);
+            log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendImageAndToken & String firebaseResponse = {}", firebaseResponse);
         } catch (InterruptedException | ExecutionException e) {
-            log.debug("Throw in sendPlantToToken & InterruptedException | ExecutionException e = {}", e);
+            log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = {}", e);
             throw new PushNotificationException(e);
         }
-        log.debug("Exit class = QueueProxy & method = sendPlantToToken & return = void");
+        log.debug("Exit class = QueueProxy & method = sendImageAndToken & return = void");
     }
 }

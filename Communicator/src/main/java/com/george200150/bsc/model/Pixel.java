@@ -1,10 +1,14 @@
 package com.george200150.bsc.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class Pixel {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Pixel { // TODO: HOW TO OPTIMISE BITMAP/PIXEL NETWORK TRANSFER?
     @JsonProperty("R")
     private int R;
 

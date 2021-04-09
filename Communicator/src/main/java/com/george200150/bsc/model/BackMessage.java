@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class BackMessage {
     @JsonProperty("preds")
-    private List<Prediction> preds;
+    private List<Pixel> preds;
     @JsonProperty("token")
     private Token token;
 }

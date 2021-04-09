@@ -1,23 +1,21 @@
 package com.george200150.bsc.pleasefirebase;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import com.george200150.bsc.pleasefirebase.model.Bitmap;
 import com.george200150.bsc.pleasefirebase.model.ForwardMessage;
@@ -74,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.setContext(this);
         setContentView(R.layout.activity_main);
 
-        final EditText titleEt = (EditText) findViewById(R.id.et_title); // the fields serve no purpose
-        final EditText bodyEt = (EditText) findViewById(R.id.et_body);
         Button submitBtn = (Button) findViewById(R.id.btn_submit);
         button = (Button) findViewById(R.id.button);
         imageView = (ImageView) findViewById(R.id.imageView);
@@ -205,8 +201,10 @@ public class MainActivity extends AppCompatActivity {
 
         bitmap.setPixels(pixels);
 
+        Integer method = 0; // TODO: customise backend ML architecture.
+
         Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
-        ForwardMessage forwardMessage = new ForwardMessage(bitmap, token);
+        ForwardMessage forwardMessage = new ForwardMessage(bitmap, token, method);
         subscribeToTopic(token.getMessage());
 
         mAPIService.sendBitmapPOST(forwardMessage).enqueue(new Callback<Token>() {

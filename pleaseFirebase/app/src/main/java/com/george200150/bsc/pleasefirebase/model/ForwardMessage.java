@@ -12,12 +12,17 @@ public class ForwardMessage {
     @Expose
     private Token token;
 
+    @SerializedName("method") // TODO: hope I mapped it well...
+    @Expose
+    private Integer method;
+
     public ForwardMessage() {
     }
 
-    public ForwardMessage(Bitmap bitmap, Token token) {
+    public ForwardMessage(Bitmap bitmap, Token token, Integer method) {
         this.bitmap = bitmap;
         this.token = token;
+        this.method = method;
     }
 
     public Bitmap getBitmap() {
@@ -36,11 +41,20 @@ public class ForwardMessage {
         this.token = token;
     }
 
+    public Integer getMethod() {
+        return method;
+    }
+
+    public void setMethod(Integer method) {
+        this.method = method;
+    }
+
     @Override
     public String toString() {
         return "ForwardMessage{" +
                 "bitmap=" + bitmap +
                 ", token=" + token +
+                ", method=" + method +
                 '}';
     }
 }

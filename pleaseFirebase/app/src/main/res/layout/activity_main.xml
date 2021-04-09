@@ -19,47 +19,24 @@
         android:gravity="center_horizontal"
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         android:text="@string/title_enter_post"/>
-    <EditText
-        android:id="@+id/et_title"
-        android:layout_marginTop="18dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint_title"/>
-
-    <EditText
-        android:id="@+id/et_body"
-        android:lines="4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/hint_body"/>
-
-    <Button
-        android:id="@+id/btn_submit"
-        android:layout_marginTop="18dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorAccent"
-        android:textColor="@android:color/white"
-        android:text="@string/action_submit"/>
 
     <TextView
         android:id="@+id/tv_response"
-        android:layout_marginTop="35dp"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp" />
 
     <TextView
         android:id="@+id/tv_response2"
-        android:layout_marginTop="35dp"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="202dp"
+        android:layout_height="321dp"
         app:srcCompat="@drawable/ic_launcher_foreground" />
 
     <Button
@@ -67,5 +44,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TAKE PHOTO" />
+
+    <Button
+        android:id="@+id/btn_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@color/colorAccent"
+        android:text="@string/action_submit"
+        android:textColor="@android:color/white" />
 
 </LinearLayout>
