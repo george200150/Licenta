@@ -90,22 +90,99 @@ public class QueueProxy {
         ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
+        int index = 0;
+        while (index + 2 < predictedImage.length) {
+            JSONObject body = new JSONObject();
+            body.put("to", "/topics/" + TOPIC);
+            body.put("priority", "high");
+
+            JSONObject notification = new JSONObject();
+            notification.put("title", "ONE processed image' pixel is here!");
+
+            JSONObject data = new JSONObject();
+            data.put("TOPIC", token);
+
+            String json = predictedImage[index] + "," + predictedImage[index+1] + "," + predictedImage[index+2];
+            System.out.println("P I X E L = " + json);
+            data.put("PIXEL", json);
+
+            String predictedImageSize = h + "," + w;
+            System.out.println("predictedImageSize: \"h,w\" = " + predictedImageSize);
+            data.put("SIZE", predictedImageSize);
+
+            String indexOfPixel = Integer.toString(index/3);
+            System.out.println("indexOfPixel = " + indexOfPixel);
+            data.put("COUNT", indexOfPixel);
+
+            System.out.println(token);
+
+            body.put("notification", notification);
+            body.put("data", data);
+//        log.debug("created JSONObject body = {}", body);
+            HttpEntity<String> request = new HttpEntity<>(body.toString());
+//        log.debug("created HttpEntity<String> request = {}", request);
+
+            CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
+
+            // TODO: could also send multiple "paged" notification such as
+            //  {"batch_no": 16, "preds": [pixels]} and rebuild the whole image on client side based on batch_no
+            //  (race condition?)
+
+            // TODO: could UPLOAD the PHOTO on the internet, and NOTIFY the user with the image's LINK and download the IMAGE on CLIENT SIDE
+
+            // 1000 pixel images are too big (needed size == 187500)
+            // TODO: Caused by: org.springframework.web.client.HttpClientErrorException$BadRequest:
+            //  400 Bad Request: [{"error":"MessageTooBig"}]
+
+            // Check that the total size of the payload data included in a message does not exceed FCM limits:
+            // 4096 bytes for most messages, or 2048 bytes in the case of messages to topics.
+            // This includes both the keys and the values
+
+            CompletableFuture.allOf(pushNotification).join();
+            log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification);
+            try {
+                log.debug("Entered try in sendImageAndToken");
+                String firebaseResponse = pushNotification.get();
+                log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendImageAndToken & String firebaseResponse = {}", firebaseResponse);
+            } catch (InterruptedException | ExecutionException e) {
+                log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = { }", e);
+                throw new PushNotificationException(e);
+            }
+
+            index += 3;
+        }
+
+
+
+
+
+
+
+
+
+        // TODO: signal end of input.
+
         JSONObject body = new JSONObject();
         body.put("to", "/topics/" + TOPIC);
         body.put("priority", "high");
 
         JSONObject notification = new JSONObject();
-        notification.put("title", "Your processed image is here!");
+        notification.put("title", "ONE processed image' pixel is here!");
 
         JSONObject data = new JSONObject();
         data.put("TOPIC", token);
 
-        String json = new Gson().toJson(predictedImage);
-        data.put("PLANT", json);
+        String json = "";
+        System.out.println("P I X E L = " + json);
+        data.put("PIXEL", json);
 
-        String predictedImageSize = h + "," + w;
+        String predictedImageSize = "";
         System.out.println("predictedImageSize: \"h,w\" = " + predictedImageSize);
         data.put("SIZE", predictedImageSize);
+
+        String indexOfPixel = "";
+        System.out.println("indexOfPixel = " + indexOfPixel);
+        data.put("COUNT", indexOfPixel);
 
         System.out.println(token);
 
@@ -117,20 +194,6 @@ public class QueueProxy {
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
 
-        // TODO: could also send multiple "paged" notification such as
-        //  {"batch_no": 16, "preds": [pixels]} and rebuild the whole image on client side based on batch_no
-        //  (race condition?)
-
-        // TODO: could UPLOAD the PHOTO on the internet, and NOTIFY the user with the image's LINK and download the IMAGE on CLIENT SIDE
-
-        // 1000 pixel images are too big (needed size == 187500)
-        // TODO: Caused by: org.springframework.web.client.HttpClientErrorException$BadRequest:
-        //  400 Bad Request: [{"error":"MessageTooBig"}]
-
-        // Check that the total size of the payload data included in a message does not exceed FCM limits:
-        // 4096 bytes for most messages, or 2048 bytes in the case of messages to topics.
-        // This includes both the keys and the values
-
         CompletableFuture.allOf(pushNotification).join();
         log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification);
         try {
@@ -141,6 +204,7 @@ public class QueueProxy {
             log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = { }", e);
             throw new PushNotificationException(e);
         }
+
         log.debug("Exit class = QueueProxy & method = sendImageAndToken & return = void");
     }
 }

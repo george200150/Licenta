@@ -70,20 +70,40 @@ public class MainActivity extends AppCompatActivity {
         mContext = context;
     }
 
-    public static void doToast(String payload, String size) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
+    private static int height;
+    private static int width;
+    private static List<Integer> ListOfAllPixelsToBeGathered = new ArrayList<>();
+
+    public static void doToast(String payload, String count, String size) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
+        int index = Integer.parseInt(count);
+        Log.d(TAG, "doToast: int index = " + index);
+
         String[] sizes = size.split(",");
-        int height = Integer.parseInt(sizes[0]);
-        int width = Integer.parseInt(sizes[1]);
+        height = Integer.parseInt(sizes[0]);
+        width = Integer.parseInt(sizes[1]);
         Log.d(TAG, "doToast: int height = " + height);
         Log.d(TAG, "doToast: int width = " + width);
 
-        String content = payload.substring(1, payload.length() - 1);
-        String[] pixels = content.split(",");
+//        String content = payload.substring(1, payload.length() - 1);
+        Log.d(TAG, "P A Y L O A D = " + payload);
+//        String[] pixels = content.split(",");
+        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
+        String[] RGB = payload.split(",");
+        int red = Integer.parseInt(RGB[0]);
+        int green = Integer.parseInt(RGB[1]);
+        int blue = Integer.parseInt(RGB[2]);
 
-        List<Integer> intPixels = new ArrayList<>();
-        for (String pixel : pixels) {
-            intPixels.add(Integer.parseInt(pixel));
-        }
+        ListOfAllPixelsToBeGathered.add(red);
+        ListOfAllPixelsToBeGathered.add(green);
+        ListOfAllPixelsToBeGathered.add(blue);
+    }
+
+
+    public static void f() {
+        List<Integer> intPixels = ListOfAllPixelsToBeGathered;//new ArrayList<>();
+//        for (String pixel : pixels) {
+//            intPixels.add(Integer.parseInt(pixel));
+//        }
 
         int[] primitives = intPixels.stream().mapToInt(Integer::intValue).toArray();
         Log.d(TAG, "doToast: primitives.len = " + primitives.length);
@@ -110,9 +130,7 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageDrawable(drawable);
 
 //        mResponseTv2.setText(payload);
-        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
