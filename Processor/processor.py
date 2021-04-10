@@ -4,7 +4,6 @@ Created on 24 iul. 2020
 @author: George
 """
 import json
-import math
 from concurrent.futures.thread import ThreadPoolExecutor
 
 import pika
@@ -29,9 +28,9 @@ class PixelMapper:
         return r, g, b
 
 
-class HardProcessor:
+class MachineLearningProcessor:
     @staticmethod
-    def process(height, width, RGBpixels):
+    def process(width, height, RGBpixels):
         img = Image.new('RGB', (width, height), "black")  # Create a new black image
         pixels = img.load()  # Create the pixel map
         print("height = ", height)
@@ -53,16 +52,7 @@ class HardProcessor:
         predImg = predImg.convert('RGB')
         predImg.show()
 
-        # resize image due to Network Transport Capacity limitations
         w, h = predImg.size
-        aspectRation = w / h
-
-        if h < w:
-            h = 100
-            w = math.floor(h * aspectRation)
-        else:
-            w = 100
-            h = math.floor(w * aspectRation)
 
         size = (w, h)
         print('size = ', size)
@@ -88,7 +78,7 @@ class HardProcessor:
         ################################################################################################################
 
         predictionsList = predClasses
-        return h, w, predictionsList
+        return w, h, predictionsList
 
 
 class MainProcessor:
@@ -111,10 +101,10 @@ class MainProcessor:
             pass  # finished pixels
 
         print("length of RGBpixels = ", len(RGBpixels))
-        h, w, outputBitmap = HardProcessor.process(h, w, RGBpixels)  # ML image processing algoirthm
+        w, h, outputBitmap = MachineLearningProcessor.process(w, h, RGBpixels)  # ML image processing algoirthm
 
         print("length of outputBitmap = ", len(outputBitmap))
-        return h, w, outputBitmap  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
+        return w, h, outputBitmap
 
 
 # import time
@@ -130,7 +120,11 @@ def process(completeMessageJSON):
     jsonBitmap = completeMessageJSON['bitmap']
     jsonToken = completeMessageJSON['token']
 
-    h, w, listPredictions = mainProcessor.process(jsonBitmap)
+    w, h, listPredictions = mainProcessor.process(jsonBitmap)
+
+    print("BEFORE DUMPING JSON")
+    print("height = ", h)
+    print("width = ", w)
 
     formattedMessage = {"h": h, "w": w, "preds": listPredictions, "token": jsonToken}
     message = json.dumps(formattedMessage)

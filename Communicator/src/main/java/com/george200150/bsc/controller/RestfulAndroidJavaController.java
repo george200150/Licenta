@@ -21,4 +21,12 @@ public class RestfulAndroidJavaController {
         log.debug("Entered class = RestfulAndroidJavaController & method = handlePostCar & ForwardMessage forwardMessage = {}", forwardMessage);
         return server.send(forwardMessage);
     }
+
+    @PostMapping("fetch")
+    @ResponseStatus(HttpStatus.OK)
+    public Bitmap handleGetBitmap(@RequestBody String pathname) {
+        pathname = pathname.substring(1, pathname.length()-1);
+        log.debug("Entered class = RestfulAndroidJavaController & method = handleGetBitmap & String pathname = {}", pathname);
+        return server.fetch(pathname);
+    }
 }

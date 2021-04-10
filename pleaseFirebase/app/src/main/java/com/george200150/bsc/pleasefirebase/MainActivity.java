@@ -36,9 +36,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     static final int STORAGE_PERMISSION_CODE = 1;
 
     private String currentPhotoPath;
-    private APIService mAPIService;
+    private static APIService mAPIService;
 
     private static Context mContext; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
 
@@ -70,56 +68,52 @@ public class MainActivity extends AppCompatActivity {
         mContext = context;
     }
 
-    private static int height;
-    private static int width;
-    private static List<Integer> ListOfAllPixelsToBeGathered = new ArrayList<>();
+    private static String Resourcepath;
 
 
-    public static void doToast(String payload, String count, String size) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
-        int index = Integer.parseInt(count);
-        Log.d(TAG, "doToast: int index = " + index);
-        mResponseTv2.setText(Integer.toString(index));
-
-        String[] sizes = size.split(",");
-        height = Integer.parseInt(sizes[0]);
-        width = Integer.parseInt(sizes[1]);
-        Log.d(TAG, "doToast: int height = " + height);
-        Log.d(TAG, "doToast: int width = " + width);
+    public static void doToast(String payload) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
+        mResponseTv2.setText(payload);
 
         Log.d(TAG, "P A Y L O A D = " + payload);
-//        String[] pixels = content.split(",");
-//        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
-        String[] RGB = payload.split(",");
 
-        int indexRGB = 0;
-        while (indexRGB + 2 < RGB.length) {
-            int red = Integer.parseInt(RGB[indexRGB]);
-            int green = Integer.parseInt(RGB[indexRGB+1]);
-            int blue = Integer.parseInt(RGB[indexRGB+2]);
+        Resourcepath = payload;
 
-            ListOfAllPixelsToBeGathered.add(red);
-            ListOfAllPixelsToBeGathered.add(green);
-            ListOfAllPixelsToBeGathered.add(blue);
+        mAPIService.sendBitmapGET(payload).enqueue(new Callback<Bitmap>() {
+            @Override
+            public void onResponse(Call<Bitmap> call, Response<Bitmap> response) {
 
-            indexRGB += 3;
-        }
+                if (response.isSuccessful()) {
+
+                    Bitmap bitmap = response.body();
+                    job(bitmap.getWidth(), bitmap.getHeight(), bitmap.getPixels());
+
+
+                    Log.i(TAG, "post submitted to API." + bitmap.toString());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Bitmap> call, Throwable t) {
+                /*showErrorMessage();*/
+                Log.e(TAG, "Unable to submit post to API: {}", t);
+            }
+        });
+
+
     }
 
 
-    public static void f() {
-        List<Integer> intPixels = ListOfAllPixelsToBeGathered;
-
-        int[] primitives = intPixels.stream().mapToInt(Integer::intValue).toArray();
-        Log.d(TAG, "doToast: primitives.len = " + primitives.length);
+    private static void job(int width, int height, int[] pixels) {
+        Log.d(TAG, "doToast: primitives.len = " + pixels.length);
 
         //convert sparse RGB to Color(R,G,B)
         int[] array = new int[3 * width * height];
         int index = 0;
         int arrayIndex = 0;
-        while (index + 2 < primitives.length) {
-            int red = primitives[index];
-            int green = primitives[index + 1];
-            int blue = primitives[index + 2];
+        while (index + 2 < pixels.length) {
+            int red = pixels[index];
+            int green = pixels[index + 1];
+            int blue = pixels[index + 2];
             array[arrayIndex] = Color.rgb(red, green, blue);
             index += 3;
             arrayIndex += 1;
