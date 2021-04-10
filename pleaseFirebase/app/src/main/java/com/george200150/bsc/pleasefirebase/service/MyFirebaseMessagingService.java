@@ -3,7 +3,6 @@ package com.george200150.bsc.pleasefirebase.service;
 import android.util.Log;
 
 import com.george200150.bsc.pleasefirebase.MainActivity;
-import com.george200150.bsc.pleasefirebase.util.ApiUtils;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -14,6 +13,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /*private APIService mAPIService;*/
 
     private String PLANT = null;
+    private String SIZE = null;
     private String TOPIC = null;
 
     public MyFirebaseMessagingService(){
@@ -28,6 +28,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getData().size() > 0) {
             TOPIC = remoteMessage.getData().get("TOPIC");
             PLANT = remoteMessage.getData().get("PLANT");
+            SIZE = remoteMessage.getData().get("SIZE");
 
             FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
             Log.d(TAG, "unsubscribeFromTopic: " + TOPIC);
@@ -43,7 +44,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 @Override public void run() {
                     // Code will run on the main thread
                     // MainActivity.mResponseTv2.setText(PLANT); TODO: does not work...
-                    MainActivity.doToast(PLANT);
+                    MainActivity.doToast(PLANT, SIZE);
                 }
             });
 

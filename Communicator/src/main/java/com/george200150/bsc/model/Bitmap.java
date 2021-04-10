@@ -18,7 +18,7 @@ public class Bitmap {
     private int width;
 
     @JsonProperty("pixels")
-    private byte[] pixels;
+    private int[] pixels;
 //    private List<Pixel> pixels;
 
 }

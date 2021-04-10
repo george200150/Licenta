@@ -41,19 +41,20 @@ public class QueueProxy {
     private String routingKey;
 
     public Token send(ForwardMessage forwardMessage) {
-        log.debug("Entered class = QueueProxy & method = send & ForwardMessage forwardMessage = {}", forwardMessage);
+        log.debug("Entered class = QueueProxy & method = send & THIS IS HOW THE DATA WILL BE SENT TO PYTHON FROM JAVA VIA MQ: ForwardMessage forwardMessage = {}", forwardMessage);
         Token token = forwardMessage.getToken();
 
         try {
-            log.debug("Entered try in send & ForwardMessage forwardMessage = {}", forwardMessage);
+//            log.debug("Entered try in send & ForwardMessage forwardMessage = {}", forwardMessage);
 
-            String pixelBytes = new String(forwardMessage.getBitmap().getPixels());
-//            byte[] byteArrray = pixelBytes.getBytes();
+//            String pixelBytes = new String(forwardMessage.getBitmap().getPixels());
+//            int[] byteArrray = pixelBytes.getBytes();
+//            int[] byteArrray  = forwardMessage.getBitmap().getPixels();
 //            System.out.println(byteArrray);
-            WrapperForwardMessage wrapperForwardMessage = new WrapperForwardMessage(forwardMessage, pixelBytes);
+//            WrapperForwardMessage wrapperForwardMessage = new WrapperForwardMessage(forwardMessage, pixelBytes);
 
-//            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(forwardMessage);
-            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(wrapperForwardMessage);
+            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(forwardMessage);
+//            String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(wrapperForwardMessage);
 
             log.debug("Extracted JSON in send & String json = {}", json);
 
@@ -69,19 +70,24 @@ public class QueueProxy {
 
     @RabbitListener(queues = "${spring.queues.name.receive}") // http://localhost:15672/#/queues/%2F/Licenta.JavaQueue
     public void handlePythonMessage(@Payload final byte[] byteMessage) {
-        log.debug("Entered class = QueueProxy & method = handlePythonMessage & final byte[] byteMessage = {}", byteMessage);
+        log.debug("Entered class = QueueProxy & method = handlePythonMessage & final byte[] byteMessage = too long, you know...");
 
         String jsonMessage = new String(byteMessage);
         BackMessage backMessage; // TODO: BackMessage should now contain a Photo
+//        WrapperBackMessage backMessage; // TODO: BackMessage should now contain a Photo
         try {
-            log.debug("Entered try in handlePythonMessage & String jsonMessage = {}", jsonMessage);
+            log.debug("Entered try in handlePythonMessage & THIS IS HOW THE DATA WAS RECEIVED FROM PYTHON VIA MQ: String jsonMessage = {}", jsonMessage);
             backMessage = mapper.readValue(jsonMessage, BackMessage.class);
+//            backMessage = mapper.readValue(jsonMessage, WrapperBackMessage.class);
 
 //            List<Pixel> predictedImage = backMessage.getPreds();
-            byte[] predictedImage = backMessage.getPreds();
+            int[] predictedImage = backMessage.getPreds();
+
+//            String predictedEncoded = backMessage.getPreds();
+//            int[] predictedImage = predictedEncoded.getBytes();
             Token token = backMessage.getToken();
 
-            log.debug("received predictions in handlePythonMessage & List<Prediction> predictedImage = {}", predictedImage);
+//            log.debug("received predictions in handlePythonMessage & List<Prediction> predictedImage = {}", predictedImage);
 //            String text = ParseBuilder.parse(predictedImage);
 //            log.debug("built text from predictions in handlePythonMessage & String text = {}", text);
 //            Plant plant = repository.getRecordByLatinName(text);
@@ -89,7 +95,7 @@ public class QueueProxy {
 
 //            sendImageAndToken(plant, token); // THIS THROWS PushNotificationException IN CASE PUSH NOTIFICATION HAS A PROBLEM
 //            sendImageAndToken(predictedImage, token); // TODO: refactor this for SS/DE
-            sendImageAndToken(predictedImage, token); // TODO: refactor this for SS/DE
+            sendImageAndToken(backMessage.getH(), backMessage.getW(), predictedImage, token); // TODO: refactor this for SS/DE
 
             log.debug("Exit try in handlePythonMessage");
         } catch (JsonProcessingException | PushNotificationException e) {
@@ -100,8 +106,8 @@ public class QueueProxy {
     }
 
 //    public void sendImageAndToken(Plant plant, Token token) {
-    public void sendImageAndToken(byte[] predictedImage, Token token) {
-        log.debug("Entered class = QueueProxy & predictedImage = sendImageAndToken & Plant plant = {} & Token token = {}", predictedImage, token);
+    public void sendImageAndToken(int h, int w, int[] predictedImage, Token token) {
+//        log.debug("Entered class = QueueProxy & predictedImage = sendImageAndToken & Plant plant = {} & Token token = {}", predictedImage, token);
         ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
@@ -110,27 +116,28 @@ public class QueueProxy {
         body.put("priority", "high");
 
         JSONObject notification = new JSONObject();
-        notification.put("title", "Your search result is here!");
-//        notification.put("body", plant.getEnglishName());
+        notification.put("title", "Your processed image is here!");
 
         JSONObject data = new JSONObject();
         data.put("TOPIC", token);
-//        data.put("PLANT", predictedImage.toString());
-//        data.put("PLANT", "YEE_HAAAAAAA");
 
         String json = new Gson().toJson(predictedImage);
         data.put("PLANT", json);
+
+        String predictedImageSize = h + "," + w;
+//        String sizeJson = new Gson().toJson(predictedImageSize);
+        data.put("SIZE", predictedImageSize);
 
 
         System.out.println(token);
 
         body.put("notification", notification);
         body.put("data", data);
-        log.debug("created JSONObject body = {}", body);
+//        log.debug("created JSONObject body = {}", body);
 
 
         HttpEntity<String> request = new HttpEntity<>(body.toString());
-        log.debug("created HttpEntity<String> request = {}", request);
+//        log.debug("created HttpEntity<String> request = {}", request);
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
 

@@ -15,10 +15,10 @@ public class Bitmap {
 
     @SerializedName("pixels")
     @Expose
-    private byte[] pixels;
+    private int[] pixels;
 //    private List<Pixel> pixels;
 
-    public void setPixels(byte[] pixels) {
+    public void setPixels(int[] pixels) {
         this.pixels = pixels;
     }
 

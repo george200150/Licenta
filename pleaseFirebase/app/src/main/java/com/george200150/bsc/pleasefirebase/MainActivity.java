@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -35,7 +36,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,11 +49,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
     public static TextView mResponseTv2; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
     private TextView mResponseTv;
-    private ImageView imageView;
+    private static ImageView imageView; // TODO: new memory leak... (testing...)
     private android.graphics.Bitmap photo;
     private Button button;
     private Button button_upload;
-    private Button button_req;
 
     static final int REQUEST_TAKE_PHOTO = 11;
     static final int STORAGE_PERMISSION_CODE = 1;
@@ -68,10 +70,59 @@ public class MainActivity extends AppCompatActivity {
         mContext = context;
     }
 
-    public static void doToast(String PLANT) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
-        mResponseTv2.setText(PLANT);
-        Toast.makeText(MainActivity.getContext(), PLANT, Toast.LENGTH_LONG).show();
+    public static void doToast(String payload, String size) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
+        String[] sizes = size.split(",");
+        int height = Integer.parseInt(sizes[0]);
+        int width = Integer.parseInt(sizes[1]);
+
+        String content = payload.substring(1, payload.length() - 1);
+        String[] pixels = content.split(",");
+
+        List<Integer> intPixels = new ArrayList<>();
+        for (String pixel : pixels) {
+            intPixels.add(Integer.parseInt(pixel));
+        }
+
+        int[] primitives = intPixels.stream().mapToInt(Integer::intValue).toArray();
+
+
+        byte[] bytePixels = new byte[primitives.length];
+        for (int i = 0; i < primitives.length; i++) {
+            bytePixels[i] = (byte) primitives[i];
+        }
+
+        Log.d(TAG, "doToast: primitives.len = " + primitives.length);
+//        android.graphics.Bitmap bmp = BitmapFactory.decodeByteArray(bytePixels, 0, intPixels.size()/*, opts*/);
+//        android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(primitives,7,  10, android.graphics.Bitmap.Config.RGB_565);
+
+
+        //convert sparse RGB to Color(R,G,B)
+//        int width = 7;
+//        int height = 10;
+
+        int[] array = new int[width*height];
+        int index = 0;
+        int arrayIndex = 0;
+        while (index+2 < primitives.length) {
+            int red = primitives[index];
+            int green = primitives[index+1];
+            int blue = primitives[index+2];
+            array[arrayIndex] = Color.rgb(red, green, blue);
+            index += 3;
+            arrayIndex += 1;
+        }
+
+        android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
+        bitmap.setPixels(array, 0, width, 0, 0, width, height);
+
+//        android.graphics.Bitmap bmp = BitmapFactory.decodeByteArray(bytePixels, 0, intPixels.size()/*, opts*/);
+//        imageView.setImageBitmap(bmp);
+        imageView.setImageBitmap(bitmap);
+
+        mResponseTv2.setText(payload);
+        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,12 +152,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (ContextCompat.checkSelfPermission(MainActivity.this,
                         Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(MainActivity.this, "You have already granted this permission!",
-                            Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(MainActivity.this, "You have already granted this permission!", Toast.LENGTH_SHORT).show();
                 } else {
                     requestStoragePermission();
                 }
-
                 dispatchOpenFileIntent(view);
             }
         });
@@ -159,37 +208,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-
-
-
-
-
     public void showErrorMessage() {
         Toast.makeText(this, R.string.mssg_error_submitting_post, Toast.LENGTH_SHORT).show();
     }
 
     private void dispatchOpenFileIntent(View view){
-//        Intent openFileIntent = new Intent();
-//        openFileIntent.setAction(Intent.ACTION_VIEW);
-//        openFileIntent.setType("image/*");
-//        startActivity(openFileIntent);
         Intent i = new Intent(
                 Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(i, STORAGE_PERMISSION_CODE);
-
-//        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-//        getIntent.setType("image/*");
-//
-//        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//        pickIntent.setType("image/*");
-//
-//        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-//        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
-//
-//        startActivityForResult(chooserIntent, STORAGE_PERMISSION_CODE);
     }
 
     private void dispatchTakePictureIntent(View view) {
@@ -214,6 +240,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private int max(int a, int b){
+        return a>b ? a : b;
+    }
+
     public android.graphics.Bitmap getResizedBitmap(android.graphics.Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -221,12 +251,12 @@ public class MainActivity extends AppCompatActivity {
         float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
-            height = (int) (width / bitmapRatio);
+            height = max(1, (int) (width / bitmapRatio));
         } else {
             height = maxSize;
-            width = (int) (height * bitmapRatio);
+            width = max(1, (int) (height * bitmapRatio));
         }
-        return android.graphics.Bitmap.createScaledBitmap(image, width, height, true);
+        return android.graphics.Bitmap.createScaledBitmap(image, width, height, false);
     }
 
     @Override
@@ -239,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
             System.out.println(currentPhotoPath);
             Log.d(TAG, "onActivityResult: currentPhotoPath = " + currentPhotoPath);
-            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
+            photo = this.getResizedBitmap(bitmap, 10); // resize, big pictures are hard to be transported
             imageView.setImageBitmap(photo);
         }
         else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
@@ -261,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
             BitmapFactory.Options options = new BitmapFactory.Options();
             android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
 
-            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
+            photo = this.getResizedBitmap(bitmap, 10); // resize, big pictures are hard to be transported
             imageView.setImageBitmap(photo);
         }
     }
@@ -271,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
         int h = androidBitmap.getHeight();
         int w = androidBitmap.getWidth();
-        Log.d(TAG, "sendPost: HEIGHT = " + h);
+        Log.d(TAG, "sendPost: HEIGHT = " + h); // TODO: WHY DOES BITMAP HAVE 2x1 AND THERE ARE MORE PIXELS (3x2)
         Log.d(TAG, "sendPost: WIDTH = " + w);
 
         bitmap.setHeight(h);
@@ -282,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
         // build Pixel object from int pixel
 //        List<Pixel> pixels = new ArrayList<>();
-        byte[] pixels = new byte[3 * h * w]; // reduce bitmap dimensionality even more
+        int[] pixels = new int[3 * h * w]; // reduce bitmap dimensionality even more
         int index = 0;
         for (int intPix : androidPixels) {
             int r = (intPix >> 16) & 0xff;
@@ -294,9 +324,9 @@ public class MainActivity extends AppCompatActivity {
 //            pixel.setG(g);
 //            pixel.setB(b);
 //            pixels.add(pixel);
-            pixels[index] = (byte) r;
-            pixels[index+1] = (byte) g;
-            pixels[index+2] = (byte) b;
+            pixels[index] = (int) r;
+            pixels[index+1] = (int) g;
+            pixels[index+2] = (int) b;
             index += 3;
         }
 

@@ -3,13 +3,12 @@ Created on 24 iul. 2020
 
 @author: George
 """
-import pika
 import json
 from concurrent.futures.thread import ThreadPoolExecutor
-from random import randint
 
-from PIL import Image
+import pika
 import pytesseract
+from PIL import Image
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
@@ -69,17 +68,10 @@ class MainProcessor:
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
 
-        something = [elem.encode() for elem in pixelsList]
-        encoded_something = pixelsList.encode()
-        print(encoded_something)
-        print(something)
-        encoded_string = pixelsList.encode()
-        bytess = bytearray(encoded_string)
-        print(bytess)
-        # mv = memoryview(pixelsList).cast('H')
-        # print(mv[0], mv[1], mv[2])
 
-        pixels = []
+
+        sparsePixels = []
+        RGBpixels = []
         # for pixel in pixelsList:
         #     pixels.append(PixelMapper.map(pixel))
         index = 0
@@ -89,12 +81,15 @@ class MainProcessor:
                 g = pixelsList[index + 1]
                 b = pixelsList[index + 2]
                 index += 3
-                pixels.append((r, g, b))
+                RGBpixels.append((r, g, b))
+                sparsePixels.append(r)
+                sparsePixels.append(g)
+                sparsePixels.append(b)
                 pass
         except IndexError:
             pass  # finished pixels
 
-        predictionsList = HardProcessor.process(h, w, pixels)
+        predictionsList = HardProcessor.process(h, w, RGBpixels)
         predictionsListFormatted = []
 
         # for prediction in predictionsList:
@@ -103,7 +98,10 @@ class MainProcessor:
         # print(len(predictionsListFormatted))
         # return predictionsListFormatted[:100]
         print(len(predictionsList))
-        return predictionsList[:len(predictionsList)//2]  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
+        # return predictionsList
+        print(sparsePixels)
+        return h, w, sparsePixels
+        # return predictionsList[:len(predictionsList)//2]  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
 
 
 # import time
@@ -119,9 +117,9 @@ def process(completeMessageJSON):
     jsonBitmap = completeMessageJSON['bitmap']
     jsonToken = completeMessageJSON['token']
 
-    listPredictions = mainProcessor.process(jsonBitmap)
+    h, w, listPredictions = mainProcessor.process(jsonBitmap)
 
-    formattedMessage = {"preds": listPredictions, "token": jsonToken}
+    formattedMessage = {"h": h, "w": w, "preds": listPredictions, "token": jsonToken}
     message = json.dumps(formattedMessage)
 
     # PUBLISHER
