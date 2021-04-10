@@ -104,6 +104,7 @@ public class QueueProxy {
         data.put("PLANT", json);
 
         String predictedImageSize = h + "," + w;
+        System.out.println("predictedImageSize: \"h,w\" = " + predictedImageSize);
         data.put("SIZE", predictedImageSize);
 
         System.out.println(token);

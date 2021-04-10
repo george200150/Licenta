@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -73,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
         String[] sizes = size.split(",");
         int height = Integer.parseInt(sizes[0]);
         int width = Integer.parseInt(sizes[1]);
+        Log.d(TAG, "doToast: int height = " + height);
+        Log.d(TAG, "doToast: int width = " + width);
 
         String content = payload.substring(1, payload.length() - 1);
         String[] pixels = content.split(",");
@@ -101,9 +104,12 @@ public class MainActivity extends AppCompatActivity {
         android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
         bitmap.setPixels(array, 0, width, 0, 0, width, height);
 
-        imageView.setImageBitmap(bitmap);
+        BitmapDrawable drawable = new BitmapDrawable(bitmap);
+        drawable.setFilterBitmap(false);
+//        imageView.setImageBitmap(bitmap);
+        imageView.setImageDrawable(drawable);
 
-        mResponseTv2.setText(payload);
+//        mResponseTv2.setText(payload);
         Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
     }
 
@@ -224,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
             System.out.println(currentPhotoPath);
             Log.d(TAG, "onActivityResult: currentPhotoPath = " + currentPhotoPath);
-            photo = this.getResizedBitmap(bitmap, 10); // resize, big pictures are hard to be transported
+            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
             imageView.setImageBitmap(photo);
         } else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
 
@@ -245,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
             BitmapFactory.Options options = new BitmapFactory.Options();
             android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
 
-            photo = this.getResizedBitmap(bitmap, 10); // resize, big pictures are hard to be transported
+            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
             imageView.setImageBitmap(photo);
         }
     }
@@ -312,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
         if (mResponseTv.getVisibility() == View.GONE) {
             mResponseTv.setVisibility(View.VISIBLE);
         }
-        mResponseTv.setText(response);
+//        mResponseTv.setText(response);
     }
 
     private File createImageFile() throws IOException {

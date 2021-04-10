@@ -1,6 +1,5 @@
 package com.george200150.bsc.controller;
 
-import com.george200150.bsc.exception.PlantMappingException;
 import com.george200150.bsc.exception.QueueProxyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,11 +14,5 @@ public class ExceptionAdviceController {
     public ResponseEntity<String> sendQueueFailed(QueueProxyException exception) {
         log.warn("RabbitMQ queue call has failed: {}", exception.getMessage());
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
-    }
-
-    @ExceptionHandler(PlantMappingException.class)
-    public ResponseEntity<String> sendMappingFailed(PlantMappingException exception) {
-        log.warn("Plant object mapping has failed: {}", exception.getMessage());
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

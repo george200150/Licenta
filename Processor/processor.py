@@ -4,13 +4,13 @@ Created on 24 iul. 2020
 @author: George
 """
 import json
+import math
 from concurrent.futures.thread import ThreadPoolExecutor
 
 import pika
-import pytesseract
 from PIL import Image
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+from ResNeSt.demo import loadModel, inference
 
 
 class PredictionMapper:
@@ -41,14 +41,72 @@ class HardProcessor:
             pixels[i % width, i // width] = RGBpixels[i]
         # DEBUG
         img.show()
+        img.save('C:/Users/George/bsc/Licenta/Processor/TEMP.png')
         ################################################################################################################
 
         # TODO: insert cool ML image processing algorithm here
+        inference(model,
+                  filename='C:/Users/George/bsc/Licenta/Processor/TEMP.png',
+                  outputFolder='C:/Users/George/bsc/Licenta/Processor/')
+
+        predImg = Image.open(r'C:/Users/George/bsc/Licenta/Processor/output.png')
+        predImg = predImg.convert('RGB')
+        predImg.show()
+
+        # resize image due to Network Transport Capacity limitations
+        w, h = predImg.size
+        aspectRation = w / h
+
+        if h < w:
+            h = 10
+            w = math.floor(h * aspectRation)
+        else:
+            w = 10
+            h = math.floor(w * aspectRation)
+
+        size = (w, h)
+        print('size = ', size)
+        predImg.thumbnail(size)
+
+        predClassesR = list(predImg.getdata(0))
+        predClassesG = list(predImg.getdata(1))
+        predClassesB = list(predImg.getdata(2))
+        predImg.show()
+
+        print(predImg.size)
+        print("length of R pixels = ", len(predClassesR))
+        print("length of G pixels = ", len(predClassesG))
+        print("length of B pixels = ", len(predClassesB))
+
+        predClassesRGB = [(x, y, z) for (x, y, z) in zip(predClassesR, predClassesG, predClassesB)]
+
+        predClasses = []
+        for rgbPix in predClassesRGB:
+            predClasses.append(rgbPix[0])
+            predClasses.append(rgbPix[1])
+            predClasses.append(rgbPix[2])
+
+        # index = 0
+        # formattedPrediction = []
+        # while index + 2 < height * width:
+        #     r = predClasses[index]
+        #     g = predClasses[index + 1]
+        #     b = predClasses[index + 2]
+        #     formattedPrediction.append((r, g, b))
+        #     index += 3
+
+        # map colors to palette
+
+        # mappedPixels = []
+        # from ResNeSt.demo import adepallete
+
+        # for pixel in predClasses:
+        #     mappedPixels.append(adepallete[pixel])
 
         ################################################################################################################
 
-        predictionsList = RGBpixels
-        return predictionsList
+        predictionsList = predClasses
+        return h, w, predictionsList
 
 
 class MainProcessor:
@@ -58,7 +116,6 @@ class MainProcessor:
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
 
-        sparsePixels = []  # these are needed to send to Java via MQ
         RGBpixels = []  # these are needed for PIL image creation
         index = 0
         try:
@@ -68,17 +125,14 @@ class MainProcessor:
                 b = pixelsList[index + 2]
                 index += 3
                 RGBpixels.append((r, g, b))
-                sparsePixels.append(r)
-                sparsePixels.append(g)
-                sparsePixels.append(b)
-                pass
         except IndexError:
             pass  # finished pixels
 
-        HardProcessor.process(h, w, RGBpixels)  # this should be the ML image processing algoirthm...
+        print("length of RGBpixels = ", len(RGBpixels))
+        h, w, outputBitmap = HardProcessor.process(h, w, RGBpixels)  # ML image processing algoirthm
 
-        print(sparsePixels)
-        return h, w, sparsePixels  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
+        print("length of outputBitmap = ", len(outputBitmap))
+        return h, w, outputBitmap  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
 
 
 # import time
@@ -130,6 +184,9 @@ def callback(ch, method, properties, body):
 
 
 if __name__ == '__main__':
+    global model
+    model = loadModel()
+
     mainProcessor = MainProcessor()
     executor = ThreadPoolExecutor(5)
 
