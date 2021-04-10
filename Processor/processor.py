@@ -85,24 +85,6 @@ class HardProcessor:
             predClasses.append(rgbPix[0])
             predClasses.append(rgbPix[1])
             predClasses.append(rgbPix[2])
-
-        # index = 0
-        # formattedPrediction = []
-        # while index + 2 < height * width:
-        #     r = predClasses[index]
-        #     g = predClasses[index + 1]
-        #     b = predClasses[index + 2]
-        #     formattedPrediction.append((r, g, b))
-        #     index += 3
-
-        # map colors to palette
-
-        # mappedPixels = []
-        # from ResNeSt.demo import adepallete
-
-        # for pixel in predClasses:
-        #     mappedPixels.append(adepallete[pixel])
-
         ################################################################################################################
 
         predictionsList = predClasses

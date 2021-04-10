@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "doToast: int height = " + height);
         Log.d(TAG, "doToast: int width = " + width);
 
-//        String content = payload.substring(1, payload.length() - 1);
         Log.d(TAG, "P A Y L O A D = " + payload);
 //        String[] pixels = content.split(",");
 //        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
@@ -108,10 +107,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public static void f() {
-        List<Integer> intPixels = ListOfAllPixelsToBeGathered;//new ArrayList<>();
-//        for (String pixel : pixels) {
-//            intPixels.add(Integer.parseInt(pixel));
-//        }
+        List<Integer> intPixels = ListOfAllPixelsToBeGathered;
 
         int[] primitives = intPixels.stream().mapToInt(Integer::intValue).toArray();
         Log.d(TAG, "doToast: primitives.len = " + primitives.length);
@@ -134,10 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
         BitmapDrawable drawable = new BitmapDrawable(bitmap);
         drawable.setFilterBitmap(false);
-//        imageView.setImageBitmap(bitmap);
         imageView.setImageDrawable(drawable);
-
-//        mResponseTv2.setText(payload);
     }
 
     @Override

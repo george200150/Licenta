@@ -90,6 +90,67 @@ public class QueueProxy {
         ///////////////////////////////////////////////////////// TODO: maybe refactor to a message json builder ???
         String TOPIC = token.getMessage();
 
+
+
+        // TODO: signal how many notifications will be sent... (this is so inefficient...)
+        //  then send all the notifications that will be received in separate buckets on the client
+        //   then build the bitmap based on the indices of the notification buckets
+        //    then display the bitmap.
+        // this all seems a little too complicated...
+
+        JSONObject body1 = new JSONObject();
+        body1.put("to", "/topics/" + TOPIC);
+        body1.put("priority", "high");
+
+        JSONObject notification1 = new JSONObject();
+        notification1.put("title", "ONE processed image' pixel is here!");
+
+        JSONObject data1 = new JSONObject();
+        data1.put("TOPIC", token);
+
+        String json1 = "";
+        System.out.println("P I X E L = " + json1);
+        data1.put("PIXEL", json1);
+
+        String predictedImageSize1 = "";
+        System.out.println("predictedImageSize: \"h,w\" = " + predictedImageSize1);
+        data1.put("SIZE", predictedImageSize1);
+
+        String indexOfPixel1 = "";
+        System.out.println("indexOfPixel = " + indexOfPixel1);
+        data1.put("COUNT", indexOfPixel1);
+
+        System.out.println(token);
+
+        body1.put("notification", notification1);
+        body1.put("data", data1);
+//        log.debug("created JSONObject body = {}", body);
+        HttpEntity<String> request1 = new HttpEntity<>(body1.toString());
+//        log.debug("created HttpEntity<String> request = {}", request);
+
+        CompletableFuture<String> pushNotification1 = androidPushNotificationsService.send(request1);
+
+        CompletableFuture.allOf(pushNotification1).join();
+        log.debug("called androidPushNotificationsService.send(request) & CompletableFuture<String> pushNotification = {}", pushNotification1);
+        try {
+            log.debug("Entered try in sendImageAndToken");
+            String firebaseResponse1 = pushNotification1.get();
+            log.debug("Exiting try after String firebaseResponse = pushNotification.get(); in sendImageAndToken & String firebaseResponse = {}", firebaseResponse1);
+        } catch (InterruptedException | ExecutionException e) {
+            log.debug("Throw in sendImageAndToken & InterruptedException | ExecutionException e = { }", e);
+            throw new PushNotificationException(e);
+        }
+
+
+        ////////////////////////////////////
+
+
+
+
+
+
+
+
         int index = 0;
         while (index + 2 < predictedImage.length) {
             JSONObject body = new JSONObject();
