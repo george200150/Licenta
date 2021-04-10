@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -43,14 +42,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-
     private static final String TAG = MainActivity.class.getSimpleName();
     public static TextView mResponseTv2; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
     private TextView mResponseTv;
     private static ImageView imageView; // TODO: new memory leak... (testing...)
     private android.graphics.Bitmap photo;
-    private Button button;
-    private Button button_upload;
 
     static final int REQUEST_TAKE_PHOTO = 11;
     static final int STORAGE_PERMISSION_CODE = 1;
@@ -68,15 +64,8 @@ public class MainActivity extends AppCompatActivity {
         mContext = context;
     }
 
-    private static String Resourcepath;
-
-
     public static void doToast(String payload) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
         mResponseTv2.setText(payload);
-
-        Log.d(TAG, "P A Y L O A D = " + payload);
-
-        Resourcepath = payload;
 
         mAPIService.sendBitmapGET(payload).enqueue(new Callback<Bitmap>() {
             @Override
@@ -85,28 +74,19 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
 
                     Bitmap bitmap = response.body();
-                    job(bitmap.getWidth(), bitmap.getHeight(), bitmap.getPixels());
-
-
-                    Log.i(TAG, "post submitted to API." + bitmap.toString());
+                    displayBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getPixels());
                 }
             }
 
             @Override
             public void onFailure(Call<Bitmap> call, Throwable t) {
-                /*showErrorMessage();*/
-                Log.e(TAG, "Unable to submit post to API: {}", t);
+                Toast.makeText(MainActivity.getContext(), "FAILED TO FETCH PHOTO...", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
-
-    private static void job(int width, int height, int[] pixels) {
-        Log.d(TAG, "doToast: primitives.len = " + pixels.length);
-
-        //convert sparse RGB to Color(R,G,B)
+    private static void displayBitmap(int width, int height, int[] pixels) {
+        //convert flat RGB to Color(R,G,B)
         int[] array = new int[3 * width * height];
         int index = 0;
         int arrayIndex = 0;
@@ -134,15 +114,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button submitBtn = (Button) findViewById(R.id.btn_submit);
-        button = (Button) findViewById(R.id.button);
-        button_upload = (Button) findViewById(R.id.button_upload);
+        Button button = (Button) findViewById(R.id.button);
+        Button button_upload = (Button) findViewById(R.id.button_upload);
         imageView = (ImageView) findViewById(R.id.imageView);
         mResponseTv = (TextView) findViewById(R.id.tv_response);
         mResponseTv2 = (TextView) findViewById(R.id.tv_response2);
 
         mAPIService = ApiUtils.getAPIService();
 
-        button.setOnClickListener(view -> dispatchTakePictureIntent(view));
+        button.setOnClickListener(this::dispatchTakePictureIntent);
 
         button_upload.setOnClickListener(view -> {
             if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -199,17 +179,14 @@ public class MainActivity extends AppCompatActivity {
 
     private void dispatchTakePictureIntent(View view) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
+
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
             File photoFile = null;
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
                 ex.printStackTrace();
             }
-            // Continue only if the File was successfully created
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this, "com.example.android.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -238,13 +215,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
 
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, options);
-
-            System.out.println(currentPhotoPath);
-            Log.d(TAG, "onActivityResult: currentPhotoPath = " + currentPhotoPath);
-            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
-            imageView.setImageBitmap(photo);
+            getResizedBitmap(currentPhotoPath);
         } else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
 
             Uri selectedImage = data.getData();
@@ -255,18 +226,17 @@ public class MainActivity extends AppCompatActivity {
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
-            // String picturePath contains the path of selected Image
 
-            System.out.println(picturePath);
-            Log.d(TAG, "onActivityResult: picturePath = " + picturePath);
-
-            // WET code
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(picturePath, options);
-
-            photo = this.getResizedBitmap(bitmap, 500); // resize, big pictures are hard to be transported
-            imageView.setImageBitmap(photo);
+            getResizedBitmap(picturePath);
         }
+    }
+
+    private void getResizedBitmap(String currentPhotoPath) {
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, options);
+
+        photo = this.getResizedBitmap(bitmap, 500); // CUDA runs out of memory...
+        imageView.setImageBitmap(photo);
     }
 
     public void sendPost(android.graphics.Bitmap androidBitmap) {
@@ -274,8 +244,6 @@ public class MainActivity extends AppCompatActivity {
 
         int h = androidBitmap.getHeight();
         int w = androidBitmap.getWidth();
-        Log.d(TAG, "sendPost: HEIGHT = " + h); // TODO: WHY DOES BITMAP HAVE 2x1 AND THERE ARE MORE PIXELS (3x2)
-        Log.d(TAG, "sendPost: WIDTH = " + w);
 
         bitmap.setHeight(h);
         bitmap.setWidth(w);
@@ -283,16 +251,16 @@ public class MainActivity extends AppCompatActivity {
         int[] androidPixels = new int[h * w];
         androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
 
-        int[] pixels = new int[3 * h * w]; // reduce bitmap dimensionality even more
+        int[] pixels = new int[3 * h * w];
         int index = 0;
         for (int intPix : androidPixels) {
             int r = (intPix >> 16) & 0xff;
             int g = (intPix >> 8) & 0xff;
             int b = intPix & 0xff;
 
-            pixels[index] = (int) r;
-            pixels[index + 1] = (int) g;
-            pixels[index + 2] = (int) b;
+            pixels[index] = r;
+            pixels[index + 1] = g;
+            pixels[index + 2] = b;
             index += 3;
         }
         bitmap.setPixels(pixels);
@@ -306,32 +274,27 @@ public class MainActivity extends AppCompatActivity {
         mAPIService.sendBitmapPOST(forwardMessage).enqueue(new Callback<Token>() {
             @Override
             public void onResponse(Call<Token> call, Response<Token> response) {
-
                 if (response.isSuccessful()) {
                     showResponse(response.body().toString());
-                    Token token = response.body();
-                    Log.i(TAG, "post submitted to API." + token.toString());
                 }
             }
 
             @Override
             public void onFailure(Call<Token> call, Throwable t) {
                 showErrorMessage();
-                Log.e(TAG, "Unable to submit post to API: {}", t);
             }
         });
     }
 
     private void subscribeToTopic(String topic) {
         FirebaseMessaging.getInstance().subscribeToTopic(topic);
-        Log.d(TAG, "subscribeToTopic: " + topic);
     }
 
     public void showResponse(String response) {
         if (mResponseTv.getVisibility() == View.GONE) {
             mResponseTv.setVisibility(View.VISIBLE);
         }
-//        mResponseTv.setText(response);
+        mResponseTv.setText(response);
     }
 
     private File createImageFile() throws IOException {

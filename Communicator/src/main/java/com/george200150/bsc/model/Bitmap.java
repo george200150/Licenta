@@ -17,6 +17,4 @@ public class Bitmap {
 
     @JsonProperty("pixels")
     private int[] pixels;
-
 }
-

@@ -8,9 +8,6 @@ public class Token {
     @Expose
     private String message;
 
-    public Token() {
-    }
-
     public Token(String message) {
         this.message = message;
     }

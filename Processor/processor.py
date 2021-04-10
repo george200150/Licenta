@@ -31,15 +31,12 @@ class PixelMapper:
 class MachineLearningProcessor:
     @staticmethod
     def process(width, height, RGBpixels):
-        img = Image.new('RGB', (width, height), "black")  # Create a new black image
-        pixels = img.load()  # Create the pixel map
-        print("height = ", height)
-        print("width = ", width)
+        img = Image.new('RGB', (width, height), "black")
+        pixels = img.load()
 
         for i in range(0, width * height):
             pixels[i % width, i // width] = RGBpixels[i]
-        # DEBUG
-        img.show()
+
         img.save('C:/Users/George/bsc/Licenta/Processor/TEMP.png')
         ################################################################################################################
 
@@ -50,35 +47,21 @@ class MachineLearningProcessor:
 
         predImg = Image.open(r'C:/Users/George/bsc/Licenta/Processor/output.png')
         predImg = predImg.convert('RGB')
-        predImg.show()
-
-        w, h = predImg.size
-
-        size = (w, h)
-        print('size = ', size)
-        predImg.thumbnail(size)
 
         predClassesR = list(predImg.getdata(0))
         predClassesG = list(predImg.getdata(1))
         predClassesB = list(predImg.getdata(2))
-        predImg.show()
 
-        print(predImg.size)
-        print("length of R pixels = ", len(predClassesR))
-        print("length of G pixels = ", len(predClassesG))
-        print("length of B pixels = ", len(predClassesB))
-
-        predClassesRGB = [(x, y, z) for (x, y, z) in zip(predClassesR, predClassesG, predClassesB)]
 
         predClasses = []
-        for rgbPix in predClassesRGB:
-            predClasses.append(rgbPix[0])
-            predClasses.append(rgbPix[1])
-            predClasses.append(rgbPix[2])
+        for (r, g, b) in zip(predClassesR, predClassesG, predClassesB):
+            predClasses.append(r)
+            predClasses.append(g)
+            predClasses.append(b)
         ################################################################################################################
 
         predictionsList = predClasses
-        return w, h, predictionsList
+        return predictionsList
 
 
 class MainProcessor:
@@ -90,21 +73,15 @@ class MainProcessor:
 
         RGBpixels = []  # these are needed for PIL image creation
         index = 0
-        try:
-            while True:
-                r = pixelsList[index]
-                g = pixelsList[index + 1]
-                b = pixelsList[index + 2]
-                index += 3
-                RGBpixels.append((r, g, b))
-        except IndexError:
-            pass  # finished pixels
+        while index + 2 < len(pixelsList):
+            r = pixelsList[index]
+            g = pixelsList[index + 1]
+            b = pixelsList[index + 2]
+            index += 3
+            RGBpixels.append((r, g, b))
 
-        print("length of RGBpixels = ", len(RGBpixels))
-        w, h, outputBitmap = MachineLearningProcessor.process(w, h, RGBpixels)  # ML image processing algoirthm
-
-        print("length of outputBitmap = ", len(outputBitmap))
-        return w, h, outputBitmap
+        outputBitmap = MachineLearningProcessor.process(w, h, RGBpixels)  # ML image processing algoirthm
+        return outputBitmap
 
 
 # import time
@@ -118,13 +95,13 @@ def process(completeMessageJSON):
     # this proved that concurency is not good enough. execution is serialized.
 
     jsonBitmap = completeMessageJSON['bitmap']
+    w = jsonBitmap['width']
+    h = jsonBitmap['height']
+
     jsonToken = completeMessageJSON['token']
 
-    w, h, listPredictions = mainProcessor.process(jsonBitmap)
+    listPredictions = mainProcessor.process(jsonBitmap)
 
-    print("BEFORE DUMPING JSON")
-    print("height = ", h)
-    print("width = ", w)
 
     formattedMessage = {"h": h, "w": w, "preds": listPredictions, "token": jsonToken}
     message = json.dumps(formattedMessage)
@@ -137,17 +114,14 @@ def process(completeMessageJSON):
                           properties=pika.BasicProperties(
                               delivery_mode=2,  # make message persistent
                           ))
-    # print(" [x] Sent %r" % message)
     connection.close()
 
 
 # LISTENER
 def callback(ch, method, properties, body):
-    # print(" [x] Received %r" % body)
 
     parsedMessageString = json.loads(body)  # - from bytes to string
     parsedMessageJSON = json.loads(parsedMessageString)  # - from string to dict
-    # print(parsedMessageJSON)
 
     # this is good concurency
     # executor.submit(process, parsedMessageJSON)

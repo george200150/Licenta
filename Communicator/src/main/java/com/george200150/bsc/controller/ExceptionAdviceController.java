@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ExceptionAdviceController {
     @ExceptionHandler(QueueProxyException.class)
     public ResponseEntity<String> sendQueueFailed(QueueProxyException exception) {
-        log.warn("RabbitMQ queue call has failed: {}", exception.getMessage());
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

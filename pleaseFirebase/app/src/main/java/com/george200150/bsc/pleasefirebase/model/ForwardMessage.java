@@ -16,9 +16,6 @@ public class ForwardMessage {
     @Expose
     private Integer method;
 
-    public ForwardMessage() {
-    }
-
     public ForwardMessage(Bitmap bitmap, Token token, Integer method) {
         this.bitmap = bitmap;
         this.token = token;

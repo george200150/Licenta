@@ -3,6 +3,8 @@ recording BSc diploma project progress throughout 2020/2021 (hopefully)
 
 *TODO:*
 
-# 1. Refactor for CV SS/DE tasks
+# 1. Integrate multiple ML models
 
-# 2. Spring auto dependency management
+# 2. Optimize network transfer and type conversions
+
+# 3. Spring auto dependency management
