@@ -20,7 +20,7 @@ public class MessageProducer {
             erpRabbitTemplate.convertAndSend(routingKey, object);
             log.debug("Exit try in post");
         } catch (final Exception e) {
-            log.debug("Throw in post & final Exception e = {}", e);
+            log.debug("Throw in post & final Exception e = { }", e);
             throw new CustomRabbitException(e);
         }
         log.debug("Exit class = MessageProducer & method = post & return = void");

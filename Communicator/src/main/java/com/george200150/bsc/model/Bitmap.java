@@ -1,7 +1,5 @@
 package com.george200150.bsc.model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +17,6 @@ public class Bitmap {
 
     @JsonProperty("pixels")
     private int[] pixels;
-//    private List<Pixel> pixels;
 
 }
 

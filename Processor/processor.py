@@ -43,18 +43,10 @@ class HardProcessor:
         img.show()
         ################################################################################################################
 
-        information = pytesseract.image_to_data(img)  # , lang, config, nice, output_type, timeout, pandas_config)
-        print(information)
-        print()
+        # TODO: insert cool ML image processing algorithm here
 
-        # TODO: this should be thoroughly processed and handled with great care
-
-        outputedText = pytesseract.image_to_string(img)
-        print(outputedText)
         ################################################################################################################
 
-        # predictionsList = [['a', randint(70, 100)], ['c', randint(70, 100)], ['e', randint(70, 100)],
-        #                    ['r', randint(70, 100)]]
         predictionsList = RGBpixels
         return predictionsList
 
@@ -62,18 +54,12 @@ class HardProcessor:
 class MainProcessor:
     def process(self, jsonBitmap):
 
-        # // whatever ...
-        # print(jsonBitmap)
         h = jsonBitmap['height']
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
 
-
-
-        sparsePixels = []
-        RGBpixels = []
-        # for pixel in pixelsList:
-        #     pixels.append(PixelMapper.map(pixel))
+        sparsePixels = []  # these are needed to send to Java via MQ
+        RGBpixels = []  # these are needed for PIL image creation
         index = 0
         try:
             while True:
@@ -89,19 +75,10 @@ class MainProcessor:
         except IndexError:
             pass  # finished pixels
 
-        predictionsList = HardProcessor.process(h, w, RGBpixels)
-        predictionsListFormatted = []
+        HardProcessor.process(h, w, RGBpixels)  # this should be the ML image processing algoirthm...
 
-        # for prediction in predictionsList:
-        #     predictionsListFormatted.append(PredictionMapper.map(prediction))
-
-        # print(len(predictionsListFormatted))
-        # return predictionsListFormatted[:100]
-        print(len(predictionsList))
-        # return predictionsList
         print(sparsePixels)
-        return h, w, sparsePixels
-        # return predictionsList[:len(predictionsList)//2]  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
+        return h, w, sparsePixels  # RAW PIXELS ( list of [r,g,b,r,g,b,r,g,b,r,g,b,...,r,g,b] )
 
 
 # import time

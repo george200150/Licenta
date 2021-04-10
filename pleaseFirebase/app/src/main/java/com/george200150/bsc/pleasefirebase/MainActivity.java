@@ -2,7 +2,6 @@ package com.george200150.bsc.pleasefirebase;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -84,29 +83,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         int[] primitives = intPixels.stream().mapToInt(Integer::intValue).toArray();
-
-
-        byte[] bytePixels = new byte[primitives.length];
-        for (int i = 0; i < primitives.length; i++) {
-            bytePixels[i] = (byte) primitives[i];
-        }
-
         Log.d(TAG, "doToast: primitives.len = " + primitives.length);
-//        android.graphics.Bitmap bmp = BitmapFactory.decodeByteArray(bytePixels, 0, intPixels.size()/*, opts*/);
-//        android.graphics.Bitmap bmp = android.graphics.Bitmap.createBitmap(primitives,7,  10, android.graphics.Bitmap.Config.RGB_565);
-
 
         //convert sparse RGB to Color(R,G,B)
-//        int width = 7;
-//        int height = 10;
-
-        int[] array = new int[width*height];
+        int[] array = new int[width * height];
         int index = 0;
         int arrayIndex = 0;
-        while (index+2 < primitives.length) {
+        while (index + 2 < primitives.length) {
             int red = primitives[index];
-            int green = primitives[index+1];
-            int blue = primitives[index+2];
+            int green = primitives[index + 1];
+            int blue = primitives[index + 2];
             array[arrayIndex] = Color.rgb(red, green, blue);
             index += 3;
             arrayIndex += 1;
@@ -115,8 +101,6 @@ public class MainActivity extends AppCompatActivity {
         android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
         bitmap.setPixels(array, 0, width, 0, 0, width, height);
 
-//        android.graphics.Bitmap bmp = BitmapFactory.decodeByteArray(bytePixels, 0, intPixels.size()/*, opts*/);
-//        imageView.setImageBitmap(bmp);
         imageView.setImageBitmap(bitmap);
 
         mResponseTv2.setText(payload);
@@ -139,34 +123,20 @@ public class MainActivity extends AppCompatActivity {
 
         mAPIService = ApiUtils.getAPIService();
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dispatchTakePictureIntent(view);
+        button.setOnClickListener(view -> dispatchTakePictureIntent(view));
+
+        button_upload.setOnClickListener(view -> {
+            if (ContextCompat.checkSelfPermission(MainActivity.this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                requestStoragePermission();
             }
+            dispatchOpenFileIntent(view);
         });
 
-        button_upload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (ContextCompat.checkSelfPermission(MainActivity.this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    // Toast.makeText(MainActivity.this, "You have already granted this permission!", Toast.LENGTH_SHORT).show();
-                } else {
-                    requestStoragePermission();
-                }
-                dispatchOpenFileIntent(view);
-            }
-        });
-
-        submitBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (photo != null) {
-                    sendPost(photo);
-                    imageView.setImageBitmap(photo);
-                }
+        submitBtn.setOnClickListener(view -> {
+            if (photo != null) {
+                sendPost(photo);
+                imageView.setImageBitmap(photo);
             }
         });
     }
@@ -177,28 +147,19 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle("Permission needed")
                     .setMessage("This permission is needed for accessing the Gallery.")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
-                        }
-                    })
-                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
+                    .setPositiveButton("Ok", (dialog, which) -> ActivityCompat.requestPermissions(MainActivity.this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE))
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                     .create().show();
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == STORAGE_PERMISSION_CODE)  {
+        if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
             } else {
@@ -207,19 +168,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     public void showErrorMessage() {
         Toast.makeText(this, R.string.mssg_error_submitting_post, Toast.LENGTH_SHORT).show();
     }
 
-    private void dispatchOpenFileIntent(View view){
+    private void dispatchOpenFileIntent(View view) {
         Intent i = new Intent(
                 Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
         startActivityForResult(i, STORAGE_PERMISSION_CODE);
     }
 
     private void dispatchTakePictureIntent(View view) {
-
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
@@ -240,10 +199,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private int max(int a, int b){
-        return a>b ? a : b;
-    }
-
     public android.graphics.Bitmap getResizedBitmap(android.graphics.Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
@@ -251,10 +206,10 @@ public class MainActivity extends AppCompatActivity {
         float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
-            height = max(1, (int) (width / bitmapRatio));
+            height = Math.max(1, (int) (width / bitmapRatio));
         } else {
             height = maxSize;
-            width = max(1, (int) (height * bitmapRatio));
+            width = Math.max(1, (int) (height * bitmapRatio));
         }
         return android.graphics.Bitmap.createScaledBitmap(image, width, height, false);
     }
@@ -271,11 +226,10 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onActivityResult: currentPhotoPath = " + currentPhotoPath);
             photo = this.getResizedBitmap(bitmap, 10); // resize, big pictures are hard to be transported
             imageView.setImageBitmap(photo);
-        }
-        else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
+        } else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
 
             Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
             Cursor cursor = getContentResolver().query(selectedImage,
                     filePathColumn, null, null, null);
             cursor.moveToFirst();
@@ -310,8 +264,6 @@ public class MainActivity extends AppCompatActivity {
         int[] androidPixels = new int[h * w];
         androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
 
-        // build Pixel object from int pixel
-//        List<Pixel> pixels = new ArrayList<>();
         int[] pixels = new int[3 * h * w]; // reduce bitmap dimensionality even more
         int index = 0;
         for (int intPix : androidPixels) {
@@ -319,36 +271,11 @@ public class MainActivity extends AppCompatActivity {
             int g = (intPix >> 8) & 0xff;
             int b = intPix & 0xff;
 
-//            Pixel pixel = new Pixel();
-//            pixel.setR(r);
-//            pixel.setG(g);
-//            pixel.setB(b);
-//            pixels.add(pixel);
             pixels[index] = (int) r;
-            pixels[index+1] = (int) g;
-            pixels[index+2] = (int) b;
+            pixels[index + 1] = (int) g;
+            pixels[index + 2] = (int) b;
             index += 3;
         }
-
-        // TESTING... //
-        /*int[] revertedPixels = new int[h*w];
-        int index = 0;
-        for (Pixel pixel : pixels){
-            int rgbPix = 0xFFFFFF;
-            rgbPix += pixel.getR() << 16;
-            rgbPix += pixel.getG() << 8;
-            rgbPix += pixel.getB();
-            revertedPixels[index] = rgbPix;
-            index ++;
-        }*/
-
-        // TESTING... //
-        /*DisplayMetrics metrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        android.graphics.Bitmap revertedBitmap = android.graphics.Bitmap.createBitmap(metrics, w, h, android.graphics.Bitmap.Config.valueOf("ARGB_8888"));
-        revertedBitmap.setPixels(revertedPixels, 0, w, 0, 0, w, h);
-        imageView.setImageBitmap(revertedBitmap);*/
-
         bitmap.setPixels(pixels);
 
         Integer method = 0; // TODO: customise backend ML architecture.
@@ -398,7 +325,6 @@ public class MainActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
