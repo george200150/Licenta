@@ -58,10 +58,10 @@ class HardProcessor:
         aspectRation = w / h
 
         if h < w:
-            h = 10
+            h = 100
             w = math.floor(h * aspectRation)
         else:
-            w = 10
+            w = 100
             h = math.floor(w * aspectRation)
 
         size = (w, h)

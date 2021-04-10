@@ -74,9 +74,11 @@ public class MainActivity extends AppCompatActivity {
     private static int width;
     private static List<Integer> ListOfAllPixelsToBeGathered = new ArrayList<>();
 
+
     public static void doToast(String payload, String count, String size) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
         int index = Integer.parseInt(count);
         Log.d(TAG, "doToast: int index = " + index);
+        mResponseTv2.setText(Integer.toString(index));
 
         String[] sizes = size.split(",");
         height = Integer.parseInt(sizes[0]);
@@ -87,15 +89,21 @@ public class MainActivity extends AppCompatActivity {
 //        String content = payload.substring(1, payload.length() - 1);
         Log.d(TAG, "P A Y L O A D = " + payload);
 //        String[] pixels = content.split(",");
-        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
+//        Toast.makeText(MainActivity.getContext(), payload, Toast.LENGTH_LONG).show();
         String[] RGB = payload.split(",");
-        int red = Integer.parseInt(RGB[0]);
-        int green = Integer.parseInt(RGB[1]);
-        int blue = Integer.parseInt(RGB[2]);
 
-        ListOfAllPixelsToBeGathered.add(red);
-        ListOfAllPixelsToBeGathered.add(green);
-        ListOfAllPixelsToBeGathered.add(blue);
+        int indexRGB = 0;
+        while (indexRGB + 2 < RGB.length) {
+            int red = Integer.parseInt(RGB[indexRGB]);
+            int green = Integer.parseInt(RGB[indexRGB+1]);
+            int blue = Integer.parseInt(RGB[indexRGB+2]);
+
+            ListOfAllPixelsToBeGathered.add(red);
+            ListOfAllPixelsToBeGathered.add(green);
+            ListOfAllPixelsToBeGathered.add(blue);
+
+            indexRGB += 3;
+        }
     }
 
 
@@ -109,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "doToast: primitives.len = " + primitives.length);
 
         //convert sparse RGB to Color(R,G,B)
-        int[] array = new int[width * height];
+        int[] array = new int[3 * width * height];
         int index = 0;
         int arrayIndex = 0;
         while (index + 2 < primitives.length) {
