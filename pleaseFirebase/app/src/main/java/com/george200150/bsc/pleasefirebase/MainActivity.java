@@ -76,11 +76,20 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bitmap = response.body();
                     displayBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getPixels());
                 }
+                else { // thrown exception via Advice
+                    String errorMessage = "ERROR!";
+                    try {
+                        errorMessage = response.errorBody().string().split(":")[1]; // remove package name
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(MainActivity.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
             public void onFailure(Call<Bitmap> call, Throwable t) {
-                Toast.makeText(MainActivity.getContext(), "FAILED TO FETCH PHOTO...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.getContext(), "SOMETHING UNEXPECTED HAPPENED...", Toast.LENGTH_SHORT).show();
             }
         });
     }

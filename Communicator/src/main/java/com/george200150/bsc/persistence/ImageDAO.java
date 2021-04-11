@@ -1,5 +1,6 @@
 package com.george200150.bsc.persistence;
 
+import com.george200150.bsc.exception.DangerousOperationError;
 import com.george200150.bsc.exception.ImageLoadException;
 import com.george200150.bsc.exception.ImageSaveException;
 import com.george200150.bsc.model.Bitmap;
@@ -9,6 +10,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,13 +41,24 @@ public class ImageDAO {
     }
 
     public static Bitmap readImage(String pathname) {
-        int[] pixels = readArray(pathname + ".txt");
-        int[] whValues = readArray(pathname + ".csv");
+        if (pathname.contains("..") || pathname.toLowerCase().contains(":")) { // avoid path injection
+            throw new DangerousOperationError("Illegal action!");
+        }
+        String bitmapPath = pathname + ".txt";
+        String sizesPath = pathname + ".csv";
+        try {
+            int[] pixels = readArray(bitmapPath);
+            Files.deleteIfExists(Paths.get(bitmapPath));
+            int[] whValues = readArray(sizesPath);
+            Files.deleteIfExists(Paths.get(sizesPath));
 
-        int width = whValues[0];
-        int height = whValues[1];
+            int width = whValues[0];
+            int height = whValues[1];
 
-        return new Bitmap(height, width, pixels);
+            return new Bitmap(height, width, pixels);
+        } catch (IOException e) {
+            throw new ImageLoadException("Failed to remove file on disk!");
+        }
     }
 
     private static int[] readArray(String pathname) {

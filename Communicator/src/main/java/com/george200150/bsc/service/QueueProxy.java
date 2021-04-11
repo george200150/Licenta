@@ -3,6 +3,7 @@ package com.george200150.bsc.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.george200150.bsc.exception.CustomRabbitException;
+import com.george200150.bsc.exception.DangerousOperationError;
 import com.george200150.bsc.exception.ImageLoadException;
 import com.george200150.bsc.exception.ImageSaveException;
 import com.george200150.bsc.exception.PushNotificationException;
@@ -104,7 +105,7 @@ public class QueueProxy {
     public Bitmap fetch(String pathname) {
         try {
             return ImageDAO.readImage(pathname);
-        } catch (ImageLoadException e) {
+        } catch (ImageLoadException | DangerousOperationError e) {
             throw new QueueProxyException(e);
         }
     }
