@@ -37,15 +37,11 @@ class MachineLearningProcessor:
         for i in range(0, width * height):
             pixels[i % width, i // width] = RGBpixels[i]
 
-        img.save('C:/Users/George/bsc/Licenta/Processor/TEMP.png')
         ################################################################################################################
-
         # TODO: insert cool ML image processing algorithm here
-        inference(model,
-                  filename='C:/Users/George/bsc/Licenta/Processor/TEMP.png',
-                  outputFolder='C:/Users/George/bsc/Licenta/Processor/')
+        predImg = inference(model,
+                  img)
 
-        predImg = Image.open(r'C:/Users/George/bsc/Licenta/Processor/output.png')
         predImg = predImg.convert('RGB')
 
         predClassesR = list(predImg.getdata(0))

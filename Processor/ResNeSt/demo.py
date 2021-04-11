@@ -28,9 +28,8 @@ input_transform = transform.Compose([
     transform.Normalize([.485, .456, .406], [.229, .224, .225])])
 
 
-def load_image(filename, size=None, scale=None, keep_asp=True, img_transform=input_transform):
+def load_image(img, size=None, scale=None, keep_asp=True, img_transform=input_transform):
     """Load the image for demos"""
-    img = Image.open(filename).convert('RGB')
     if size is not None:
         if keep_asp:
             size2 = int(size * 1.0 / img.size[0] * img.size[1])
@@ -62,41 +61,14 @@ def loadModel():
     return model
 
 
-def inference(model, filename, outputFolder):
-    # filename = 'one.jpg'
-    # filename = 'C:/Users/George/bsc/Licenta/Processor/Small.fw.png'
-    my_image = load_image(filename).cuda().unsqueeze(0)
+def inference(model, img):
+    my_image = load_image(img).cuda().unsqueeze(0)
 
     output = model.evaluate(my_image)
     predict = torch.max(output, 1)[1].cpu().numpy() + 1
 
     mask = get_mask_pallete(predict, 'ade20k')  # this should change when using DE
-    mask.save(outputFolder + 'output.png')
-
-def main():
-    dataset = 'ade20k'
-    # backbone = 'resnest101'
-    backbone = 'resnest50'  # ran out of memory
-    root = '~/.encoding/models'
-    # aux=True
-
-    # 150 classes for ADE20k
-    # 19 classes for Cityscapes
-
-    model = DeepLabV3(datasets[dataset.lower()].NUM_CLASS, backbone=backbone, root=root)
-    model.load_state_dict(torch.load(get_model_file('deeplab_%s_%s' % (backbone, acronyms[dataset]), root=root)))
-    model = model.cuda()
-    model.eval()
-
-    # filename = 'one.jpg'
-    filename = 'C:/Users/George/bsc/Licenta/Processor/Small.fw.png'
-    my_image = load_image(filename).cuda().unsqueeze(0)
-
-    output = model.evaluate(my_image)
-    predict = torch.max(output, 1)[1].cpu().numpy() + 1
-
-    mask = get_mask_pallete(predict, 'ade20k')
-    mask.save('output.png')
+    return mask
 
 
 def _get_voc_pallete(num_cls):
@@ -169,6 +141,3 @@ citypallete = [
     160, 192, 160, 160, 192, 96, 32, 64, 224, 32, 64, 96, 160, 64, 224, 160, 64, 96, 32, 192, 224, 32, 192, 96, 160,
     192, 224, 160, 192, 32, 96, 64, 160, 96, 64, 32, 224, 64, 160, 224, 64, 32, 96, 192, 160, 96, 192, 32, 224, 192,
     160, 224, 192, 96, 96, 64, 224, 96, 64, 96, 224, 64, 224, 224, 64, 96, 96, 192, 224, 96, 192, 96, 224, 192, 0, 0, 0]
-
-if __name__ == '__main__':
-    main()
