@@ -12,6 +12,7 @@
     <application
         android:requestLegacyExternalStorage="true"
 
+        android:screenOrientation="portrait"
         android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
