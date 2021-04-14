@@ -13,6 +13,7 @@ import com.george200150.bsc.model.Bitmap;
 import com.george200150.bsc.model.ForwardMessage;
 import com.george200150.bsc.model.Token;
 import com.george200150.bsc.persistence.ImageDAO;
+import com.george200150.bsc.util.BitmapFormatAdapter;
 import com.george200150.bsc.util.MessageProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -45,6 +46,7 @@ public class QueueProxy {
     private String routingKey;
 
     public Token send(ForwardMessage forwardMessage) {
+        forwardMessage.setBitmap(BitmapFormatAdapter.convertColorToRGB(forwardMessage.getBitmap()));
         Token token = forwardMessage.getToken();
         try {
             String json = mapper.writer().withDefaultPrettyPrinter().writeValueAsString(forwardMessage);
@@ -104,7 +106,8 @@ public class QueueProxy {
 
     public Bitmap fetch(String pathname) {
         try {
-            return ImageDAO.readImage(pathname);
+            Bitmap bitmap = ImageDAO.readImage(pathname);
+            return BitmapFormatAdapter.convertRGBToColor(bitmap);
         } catch (ImageLoadException | DangerousOperationError e) {
             throw new QueueProxyException(e);
         }

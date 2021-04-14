@@ -1,7 +1,6 @@
 package com.george200150.bsc.pleasefirebase.service;
 
 import android.content.Intent;
-import android.util.Log;
 
 import com.george200150.bsc.pleasefirebase.model.SubscriptionMessages;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -20,10 +19,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             FirebaseMessaging.getInstance().unsubscribeFromTopic(TOPIC);
             Intent intent = new Intent(SubscriptionMessages.NOTIFICATION_ARRIVED);
             intent.putExtra("RESOURCE", RESOURCE);
-
-            Log.d(TAG, "onMessageReceived: " + remoteMessage.getNotification());
-            Log.d(TAG, "onMessageReceived: intent = " + intent.toString());
-            Log.d(TAG, "onMessageReceived: intent = " + intent.getExtras().toString());
 
             sendBroadcast(intent);
             getBaseContext().sendBroadcast(intent);

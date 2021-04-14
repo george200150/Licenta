@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -99,21 +98,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayBitmap(int width, int height, int[] pixels) {
-        //convert flat RGB to Color(R,G,B)
-        int[] array = new int[3 * width * height];
-        int index = 0;
-        int arrayIndex = 0;
-        while (index + 2 < pixels.length) {
-            int red = pixels[index];
-            int green = pixels[index + 1];
-            int blue = pixels[index + 2];
-            array[arrayIndex] = Color.rgb(red, green, blue);
-            index += 3;
-            arrayIndex += 1;
-        }
-
         android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
-        bitmap.setPixels(array, 0, width, 0, 0, width, height);
+        bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
 
         BitmapDrawable drawable = new BitmapDrawable(bitmap);
         drawable.setFilterBitmap(false);
@@ -160,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
 
                 getApplicationContext().registerReceiver(receiver, filter); // prepare to receive an Intent from FirbaseMessagingService
 
-                sendPost(photo); // skipping frames - too much work on main thread
+                sendPost(photo); // todo: do in background task
 
                 imageView.setImageBitmap(photo);
                 imageView.setVisibility(View.GONE);
@@ -178,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         try {
             getApplicationContext().unregisterReceiver(receiver);
-        } catch (RuntimeException e) { // avoid memory leaks
+        } catch (RuntimeException e) { // avoid memory leaks (maybe also resubscribe onStart)
             e.printStackTrace();
         }
     }
@@ -298,19 +284,7 @@ public class MainActivity extends AppCompatActivity {
         int[] androidPixels = new int[h * w];
         androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
 
-        int[] pixels = new int[3 * h * w];
-        int index = 0;
-        for (int intPix : androidPixels) {
-            int r = (intPix >> 16) & 0xff;
-            int g = (intPix >> 8) & 0xff;
-            int b = intPix & 0xff;
-
-            pixels[index] = r;
-            pixels[index + 1] = g;
-            pixels[index + 2] = b;
-            index += 3;
-        }
-        bitmap.setPixels(pixels);
+        bitmap.setPixels(androidPixels);
 
         Integer method = 0; // TODO: customise backend ML architecture.
 
