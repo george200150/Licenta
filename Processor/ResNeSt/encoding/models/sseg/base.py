@@ -13,8 +13,6 @@ import torch.nn.functional as F
 from torch.nn.parallel.data_parallel import DataParallel
 from torch.nn.parallel.scatter_gather import scatter
 
-from ...utils import batch_pix_accuracy, batch_intersection_union
-
 from ..backbone import *
 
 up_kwargs = {'mode': 'bilinear', 'align_corners': True}
@@ -93,7 +91,7 @@ class BaseNet(nn.Module):
             return pred
         correct, labeled = batch_pix_accuracy(pred.data, target.data)
         inter, union = batch_intersection_union(pred.data, target.data, self.nclass)
-        return correct, labeled, inter, union
+        return correct, labeled, inter, union  # apparently, it needs the function but not the metrics methods
 
 
 class MultiEvalModule(DataParallel):

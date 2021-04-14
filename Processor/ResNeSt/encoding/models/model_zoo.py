@@ -10,10 +10,6 @@ models = {
     'deeplab_resnest101_ade': get_deeplab_resnest101_ade,
     'deeplab_resnest200_ade': get_deeplab_resnest200_ade,
     'deeplab_resnest269_ade': get_deeplab_resnest269_ade,
-    'deeplab_resnest50_pcontext': get_deeplab_resnest50_pcontext,
-    'deeplab_resnest101_pcontext': get_deeplab_resnest101_pcontext,
-    'deeplab_resnest200_pcontext': get_deeplab_resnest200_pcontext,
-    'deeplab_resnest269_pcontext': get_deeplab_resnest269_pcontext,
 }
 
 model_list = list(models.keys())

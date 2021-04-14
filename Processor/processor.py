@@ -80,16 +80,7 @@ class MainProcessor:
         return outputBitmap
 
 
-# import time
-# just for testing concurency
-
 def process(completeMessageJSON):
-    # print("IN PROCESS: ", completeMessageJSON)
-
-    # THIS IS TEMPORARY
-    # time.sleep(10)
-    # this proved that concurency is not good enough. execution is serialized.
-
     jsonBitmap = completeMessageJSON['bitmap']
     w = jsonBitmap['width']
     h = jsonBitmap['height']
@@ -119,10 +110,6 @@ def callback(ch, method, properties, body):
     parsedMessageString = json.loads(body)  # - from bytes to string
     parsedMessageJSON = json.loads(parsedMessageString)  # - from string to dict
 
-    # this is good concurency
-    # executor.submit(process, parsedMessageJSON)
-
-    # DEBUG no concurency
     process(parsedMessageJSON)
 
     print(" [x] Done")

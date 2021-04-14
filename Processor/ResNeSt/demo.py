@@ -46,8 +46,9 @@ def load_image(img, size=None, scale=None, keep_asp=True, img_transform=input_tr
 
 def loadModel():
     dataset = 'ade20k'
-    # backbone = 'resnest101'
-    backbone = 'resnest50'  # ran out of memory
+    backbone = 'resnest101'
+    # backbone = 'resnest50'  # runs out of memory for 1000x1000 px
+    # backbone = 'resnest200'  # 500x500 px => 5.8 Gb GDDR
     root = '~/.encoding/models'
     # aux=True
 
