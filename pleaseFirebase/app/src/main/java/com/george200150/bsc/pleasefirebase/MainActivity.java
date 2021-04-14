@@ -1,8 +1,10 @@
 package com.george200150.bsc.pleasefirebase;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -29,6 +31,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.george200150.bsc.pleasefirebase.model.Bitmap;
 import com.george200150.bsc.pleasefirebase.model.ForwardMessage;
+import com.george200150.bsc.pleasefirebase.model.SubscriptionMessages;
 import com.george200150.bsc.pleasefirebase.model.Token;
 import com.george200150.bsc.pleasefirebase.service.APIService;
 import com.george200150.bsc.pleasefirebase.util.ApiUtils;
@@ -45,34 +48,28 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-    public static TextView mResponseTv2; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
+    public TextView mResponseTv2;
     private TextView mResponseTv;
-    private static ProgressBar progress_loader; // TODO: new memory leak... (testing...)
-    private static ImageView imageView; // TODO: new memory leak... (testing...)
+    private ProgressBar progress_loader;
+    private ImageView imageView;
     private android.graphics.Bitmap photo;
-    private static Button submitBtn; // TODO: new memory leak... (testing...)
-    private static int disabledColor; // TODO: new memory leak... (testing...)
-    private static int enabledColor; // TODO: new memory leak... (testing...)
+    private Button submitBtn;
+    private static int disabledColor;
+    private static int enabledColor;
 
     static final int REQUEST_TAKE_PHOTO = 11;
     static final int STORAGE_PERMISSION_CODE = 1;
 
     private String currentPhotoPath;
     private static APIService mAPIService;
+    private BroadcastReceiver receiver;
+    private IntentFilter filter;
 
-    private static Context mContext; // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
 
-    public static Context getContext() {
-        return mContext;
-    }
+    public void handleFirebaseNotification(String payload) {
+        getApplicationContext().unregisterReceiver(receiver); // unregister from events until next image submit
 
-    public static void setContext(Context context) {
-        mContext = context;
-    }
-
-    public static void doToast(String payload) { // TODO: CREATED MEMORY LEAK JUST FOR TESTING PURPOSES !!!
         mResponseTv2.setText(payload);
-
         mAPIService.sendBitmapGET(payload).enqueue(new Callback<Bitmap>() {
             @Override
             public void onResponse(Call<Bitmap> call, Response<Bitmap> response) {
@@ -90,18 +87,18 @@ public class MainActivity extends AppCompatActivity {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(MainActivity.getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Bitmap> call, Throwable t) {
-                Toast.makeText(MainActivity.getContext(), "SOMETHING UNEXPECTED HAPPENED...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "SOMETHING UNEXPECTED HAPPENED...", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    private static void displayBitmap(int width, int height, int[] pixels) {
+    private void displayBitmap(int width, int height, int[] pixels) {
         //convert flat RGB to Color(R,G,B)
         int[] array = new int[3 * width * height];
         int index = 0;
@@ -123,12 +120,9 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageDrawable(drawable);
     }
 
-//    private NotificationBroadcastReceiver receiver;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivity.setContext(this);
         setContentView(R.layout.activity_main);
 
         submitBtn = (Button) findViewById(R.id.btn_submit);
@@ -144,37 +138,27 @@ public class MainActivity extends AppCompatActivity {
         disabledColor = ResourcesCompat.getColor(getResources(), R.color.colorAccentDisabled, null);
         enabledColor = ResourcesCompat.getColor(getResources(), R.color.colorAccent, null);
 
-//        receiver = new NotificationBroadcastReceiver();
-
-//        IntentFilter filter = new IntentFilter(999);
-//        registerReceiver(receiver, filter);
-
-        // TODO: activitatea sa se inregistreze la un anumit eveniment
-
-        //V2: activitatea sa inscrie o functie callback pe care sa o execute service-ul de firebase (trebuie inscris un obiect care implementeaza o anumita interfata)
-        // (inscriu activitatea la onCreate si la onDelete trebuie sa renunt la acel callback static pe care il inscriu - acolo se creeaza acel memory leak)
-
-        // activitatea sa faca register pe ea insasi si serviciul sa faca call la functia statica (mai slab dpdv al design-ului)
-
-        // se poate face cu observer + neaparat sa fac unsubscribe la activitatea la care e referinta
-        // todo: implement observer - static methods ~ okayish
-
-        // cel mai bine cu broadcast receivers - best practice
-        // activitatea == receiver; service == sender
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String payload = intent.getStringExtra("RESOURCE");
+                if (payload != null) {
+                    handleFirebaseNotification(payload);
+                } else {
+                    Toast.makeText(context, "Notification was empty!", Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+        filter = new IntentFilter(SubscriptionMessages.NOTIFICATION_ARRIVED);
 
         button.setOnClickListener(this::dispatchTakePictureIntent);
-
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestStoragePermission();
-        }
-
         button_upload.setOnClickListener(this::dispatchOpenFileIntent);
-
         submitBtn.setOnClickListener(view -> {
             if (photo != null) {
                 submitBtn.setEnabled(false);
                 submitBtn.setBackgroundColor(disabledColor);
+
+                getApplicationContext().registerReceiver(receiver, filter); // prepare to receive an Intent from FirbaseMessagingService
 
                 sendPost(photo); // skipping frames - too much work on main thread
 
@@ -183,13 +167,21 @@ public class MainActivity extends AppCompatActivity {
                 progress_loader.setVisibility(View.VISIBLE);
             }
         });
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermission();
+        }
     }
 
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        unregisterReceiver(receiver);
-//    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        try {
+            getApplicationContext().unregisterReceiver(receiver);
+        } catch (RuntimeException e) { // avoid memory leaks
+            e.printStackTrace();
+        }
+    }
 
     private void requestStoragePermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
