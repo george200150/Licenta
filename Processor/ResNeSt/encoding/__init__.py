@@ -10,4 +10,4 @@
 
 """An optimized PyTorch package with CUDA backend."""
 __version__ = '1.7.1'
-from . import nn, functions, parallel, utils, models, transforms
+from . import nn, utils, models

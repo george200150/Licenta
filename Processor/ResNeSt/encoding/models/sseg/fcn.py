@@ -1,6 +1,6 @@
 ###########################################################################
-# Created by: Hang Zhang 
-# Email: zhang.hang@rutgers.edu 
+# Created by: Hang Zhang
+# Email: zhang.hang@rutgers.edu
 # Copyright (c) 2017
 ###########################################################################
 from __future__ import division
@@ -82,7 +82,7 @@ class GlobalPooling(nn.Module):
         pool = self.gap(x)
         return interpolate(pool, (h,w), **self._up_kwargs)
 
-        
+
 class FCNHead(nn.Module):
     def __init__(self, in_channels, out_channels, norm_layer, up_kwargs={}, with_global=False):
         super(FCNHead, self).__init__()

@@ -14,7 +14,6 @@ from torch.nn import Conv2d
 import torch.nn.functional as F
 from torch.nn.modules.utils import _pair
 
-from ..functions import rectify
 
 __all__ = ['RFConv2d']
 
@@ -49,8 +48,7 @@ class RFConv2d(Conv2d):
     def forward(self, input):
         output = self._conv_forward(input, self.weight)
         if self.rectify:
-            output = rectify(output, input, self.kernel_size, self.stride,
-                             self.padding, self.dilation, self.average)
+            pass  # removed for now...
         return output
 
     def extra_repr(self):

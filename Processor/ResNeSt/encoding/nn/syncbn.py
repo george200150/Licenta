@@ -19,7 +19,6 @@ import torch
 from torch.nn.modules.batchnorm import _BatchNorm
 
 from ..utils.misc import EncodingDeprecationWarning
-from ..functions import *
 
 
 __all__ = ['DistSyncBatchNorm', 'SyncBatchNorm', 'BatchNorm1d', 'BatchNorm2d', 'BatchNorm3d']
