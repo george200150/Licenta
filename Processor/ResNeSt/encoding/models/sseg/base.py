@@ -89,9 +89,7 @@ class BaseNet(nn.Module):
             pred = pred[0]
         if target is None:
             return pred
-        correct, labeled = batch_pix_accuracy(pred.data, target.data)
-        inter, union = batch_intersection_union(pred.data, target.data, self.nclass)
-        return correct, labeled, inter, union  # apparently, it needs the function but not the metrics methods
+        return None, None, None, None  # never reaches this
 
 
 class MultiEvalModule(DataParallel):

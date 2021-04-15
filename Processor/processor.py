@@ -9,7 +9,8 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import pika
 from PIL import Image
 
-from ResNeSt.demo import loadModel, inference
+from ResNeSt.demo import loadModel as ResNeSt_loadModel, inference as ResNeSt_inference
+from MDEQ.isolated import loadModel as MDEQ_loadModel, inference as MDEQ_inference
 
 
 class PredictionMapper:
@@ -30,7 +31,7 @@ class PixelMapper:
 
 class MachineLearningProcessor:
     @staticmethod
-    def process(width, height, RGBpixels):
+    def process(width, height, RGBpixels, method):
         img = Image.new('RGB', (width, height), "black")
         pixels = img.load()
 
@@ -39,8 +40,20 @@ class MachineLearningProcessor:
 
         ################################################################################################################
         # TODO: insert cool ML image processing algorithm here
-        predImg = inference(model,
-                  img)
+        # ResNeSt (works fine with any dimension)
+        # MDEQ (allows only LANDSCAPE 2048x1024)
+
+        global model
+        if method == 0:
+            model = ResNeSt_loadModel()
+            width, height, predImg = ResNeSt_inference(model, img)
+            print(' [x] ResNeSt')
+        elif method == 1:
+            model = MDEQ_loadModel()
+            width, height, predImg = MDEQ_inference(model, img)
+            print(' [x] MDEQ')
+        else:
+            raise Exception("Bad Method!")
 
         predImg = predImg.convert('RGB')
 
@@ -57,12 +70,11 @@ class MachineLearningProcessor:
         ################################################################################################################
 
         predictionsList = predClasses
-        return predictionsList
+        return width, height, predictionsList
 
 
 class MainProcessor:
-    def process(self, jsonBitmap):
-
+    def process(self, jsonBitmap, method):
         h = jsonBitmap['height']
         w = jsonBitmap['width']
         pixelsList = jsonBitmap['pixels']
@@ -76,21 +88,21 @@ class MainProcessor:
             index += 3
             RGBpixels.append((r, g, b))
 
-        outputBitmap = MachineLearningProcessor.process(w, h, RGBpixels)  # ML image processing algoirthm
-        return outputBitmap
+        width, height, outputBitmap = MachineLearningProcessor.process(w, h, RGBpixels, method)  # ML image processing algoirthm
+        return width, height, outputBitmap
 
 
 def process(completeMessageJSON):
     jsonBitmap = completeMessageJSON['bitmap']
-    w = jsonBitmap['width']
-    h = jsonBitmap['height']
+
+    method = completeMessageJSON['method']['method']
 
     jsonToken = completeMessageJSON['token']
 
-    listPredictions = mainProcessor.process(jsonBitmap)
+    width, height, listPredictions = mainProcessor.process(jsonBitmap, method)
 
 
-    formattedMessage = {"h": h, "w": w, "preds": listPredictions, "token": jsonToken}
+    formattedMessage = {"h": height, "w": width, "preds": listPredictions, "token": jsonToken}
     message = json.dumps(formattedMessage)
 
     # PUBLISHER
@@ -117,8 +129,8 @@ def callback(ch, method, properties, body):
 
 
 if __name__ == '__main__':
-    global model
-    model = loadModel()
+    # global model
+    # model = loadModel()
 
     mainProcessor = MainProcessor()
     executor = ThreadPoolExecutor(5)

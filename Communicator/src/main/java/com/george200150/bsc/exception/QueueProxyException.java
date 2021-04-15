@@ -2,7 +2,7 @@ package com.george200150.bsc.exception;
 
 public class QueueProxyException extends RuntimeException {
 
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 6L;
 
     public QueueProxyException() {
     }

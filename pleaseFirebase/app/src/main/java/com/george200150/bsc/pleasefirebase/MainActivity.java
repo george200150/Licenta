@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.george200150.bsc.pleasefirebase.model.Bitmap;
 import com.george200150.bsc.pleasefirebase.model.ForwardMessage;
+import com.george200150.bsc.pleasefirebase.model.Method;
 import com.george200150.bsc.pleasefirebase.model.SubscriptionMessages;
 import com.george200150.bsc.pleasefirebase.model.Token;
 import com.george200150.bsc.pleasefirebase.service.APIService;
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imageView;
     private android.graphics.Bitmap photo;
     private Button submitBtn;
+    private EditText textNet;
+    private Method method;
     private static int disabledColor;
     private static int enabledColor;
 
@@ -112,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         submitBtn = (Button) findViewById(R.id.btn_submit);
+        textNet = (EditText) findViewById(R.id.textNet);
         Button button = (Button) findViewById(R.id.button);
         Button button_upload = (Button) findViewById(R.id.button_upload);
         imageView = (ImageView) findViewById(R.id.imageView);
@@ -232,6 +237,10 @@ public class MainActivity extends AppCompatActivity {
         int width = image.getWidth();
         int height = image.getHeight();
 
+        if (maxSize >= width && maxSize >= height ) { // no need to resize
+            return image;
+        }
+
         float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
@@ -268,7 +277,20 @@ public class MainActivity extends AppCompatActivity {
         BitmapFactory.Options options = new BitmapFactory.Options();
         android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, options);
 
-        photo = this.getResizedBitmap(bitmap, 500); // CUDA runs out of memory...
+        String networkName = textNet.getText().toString().toLowerCase();
+
+        // set maximum size according to the used network
+        if (networkName.equals("resnest")) {
+            photo = this.getResizedBitmap(bitmap, 500); // ResNeSt does not support any larger images
+            method = new Method(0);
+        } else if (networkName.equals("mdeq")) {
+            photo = this.getResizedBitmap(bitmap, 2048); // MDEQ does. (long network delay)
+            method = new Method(1);
+        } else {
+            Toast.makeText(this, "Please select the Network first!", Toast.LENGTH_SHORT).show();
+            method = new Method(-1);
+            return;
+        }
         imageView.setImageBitmap(photo);
     }
 
@@ -285,8 +307,6 @@ public class MainActivity extends AppCompatActivity {
         androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
 
         bitmap.setPixels(androidPixels);
-
-        Integer method = 0; // TODO: customise backend ML architecture.
 
         Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
         ForwardMessage forwardMessage = new ForwardMessage(bitmap, token, method);

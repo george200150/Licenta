@@ -2,7 +2,7 @@ package com.george200150.bsc.exception;
 
 public class ImageSaveException extends RuntimeException {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 4L;
 
     public ImageSaveException() {
     }

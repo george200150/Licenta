@@ -12,11 +12,11 @@ public class ForwardMessage {
     @Expose
     private Token token;
 
-    @SerializedName("method") // TODO: hope I mapped it well...
+    @SerializedName("method") // duplicated method method json key
     @Expose
-    private Integer method;
+    private Method method;
 
-    public ForwardMessage(Bitmap bitmap, Token token, Integer method) {
+    public ForwardMessage(Bitmap bitmap, Token token, Method method) {
         this.bitmap = bitmap;
         this.token = token;
         this.method = method;
@@ -38,11 +38,11 @@ public class ForwardMessage {
         this.token = token;
     }
 
-    public Integer getMethod() {
+    public Method getMethod() {
         return method;
     }
 
-    public void setMethod(Integer method) {
+    public void setMethod(Method method) {
         this.method = method;
     }
 

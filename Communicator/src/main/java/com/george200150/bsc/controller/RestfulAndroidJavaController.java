@@ -23,7 +23,7 @@ public class RestfulAndroidJavaController {
     @PostMapping("fetch")
     @ResponseStatus(HttpStatus.OK)
     public Bitmap handleGetBitmap(@RequestBody String pathname) {
-        pathname = pathname.substring(1, pathname.length()-1);
+        pathname = pathname.substring(1, pathname.length() - 1);
         return server.fetch(pathname);
     }
 }

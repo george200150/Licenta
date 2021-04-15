@@ -2,7 +2,7 @@ package com.george200150.bsc.exception;
 
 public class PushNotificationException extends RuntimeException {
 
-    private static final long serialVersionUID = 4L;
+    private static final long serialVersionUID = 5L;
 
     public PushNotificationException() {
     }

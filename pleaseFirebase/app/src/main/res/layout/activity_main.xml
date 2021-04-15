@@ -33,6 +33,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp" />
 
+    <TextView
+        android:labelFor="@+id/textNet"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:text="Preferred Network: (ResNeSt/MDEQ)" />
+
+    <EditText
+        android:id="@+id/textNet"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"/>
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"

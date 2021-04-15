@@ -34,6 +34,7 @@ Communicator/gradle/wrapper/
 # for python
 .project
 .pydevproject
+Processor/MDEQ/pretrained_models/
 
 # for android
 LicentaMobile/.gradle

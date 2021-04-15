@@ -69,7 +69,7 @@ def inference(model, img):
     predict = torch.max(output, 1)[1].cpu().numpy() + 1
 
     mask = get_mask_pallete(predict, 'ade20k')  # this should change when using DE
-    return mask
+    return mask.size[0], mask.size[1], mask
 
 
 def _get_voc_pallete(num_cls):

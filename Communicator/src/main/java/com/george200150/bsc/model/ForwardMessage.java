@@ -6,5 +6,5 @@ import lombok.Data;
 public class ForwardMessage {
     private Bitmap bitmap;
     private Token token;
-    private Integer method;
+    private Method method;
 }

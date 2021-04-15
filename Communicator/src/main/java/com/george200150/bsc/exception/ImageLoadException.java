@@ -2,7 +2,7 @@ package com.george200150.bsc.exception;
 
 public class ImageLoadException extends RuntimeException {
 
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 3L;
 
     public ImageLoadException() {
     }
