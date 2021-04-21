@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().unregisterReceiver(receiver); // unregister from events until next image submit
 
         mResponseTv2.setText(payload);
-        mAPIService.sendBitmapGET(payload).enqueue(new Callback<Bitmap>() {
+        mAPIService.sendFetchPOST(payload).enqueue(new Callback<Bitmap>() {
             @Override
             public void onResponse(Call<Bitmap> call, Response<Bitmap> response) {
                 if (response.isSuccessful()) {
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public android.graphics.Bitmap getResizedBitmap(android.graphics.Bitmap image, int maxSize) {
+    private android.graphics.Bitmap resizeBitmap(android.graphics.Bitmap image, int maxSize) {
         int width = image.getWidth();
         int height = image.getHeight();
 
@@ -281,10 +281,10 @@ public class MainActivity extends AppCompatActivity {
 
         // set maximum size according to the used network
         if (networkName.equals("resnest")) {
-            photo = this.getResizedBitmap(bitmap, 500); // ResNeSt does not support any larger images
+            photo = this.resizeBitmap(bitmap, 500); // ResNeSt does not support any larger images
             method = new Method(0);
         } else if (networkName.equals("mdeq")) {
-            photo = this.getResizedBitmap(bitmap, 2048); // MDEQ does. (long network delay)
+            photo = this.resizeBitmap(bitmap, 2048); // MDEQ does. (long network delay)
             method = new Method(1);
         } else {
             Toast.makeText(this, "Please select the Network first!", Toast.LENGTH_SHORT).show();

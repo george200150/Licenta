@@ -13,5 +13,5 @@ public interface APIService {
     Call<Token> sendBitmapPOST(@Body ForwardMessage forwardMessage);
 
     @POST("/data/fetch/")
-    Call<Bitmap> sendBitmapGET(@Body String pathname);
+    Call<Bitmap> sendFetchPOST(@Body String pathname);
 }

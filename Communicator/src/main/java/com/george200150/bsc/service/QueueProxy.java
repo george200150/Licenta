@@ -67,13 +67,13 @@ public class QueueProxy {
 
             String imagePath = ImageDAO.saveImage(backMessage.getW(), backMessage.getH(), backMessage.getPreds());
 
-            sendImageAndToken(imagePath, token);
+            sendImagePathAndToken(imagePath, token);
         } catch (JsonProcessingException | PushNotificationException | ImageSaveException e) {
             throw new QueueProxyException(e);
         }
     }
 
-    private void sendImageAndToken(String resourcePath, Token token) {
+    private void sendImagePathAndToken(String resourcePath, Token token) {
         HttpEntity<String> request = buildRequest(resourcePath, token);
 
         CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);

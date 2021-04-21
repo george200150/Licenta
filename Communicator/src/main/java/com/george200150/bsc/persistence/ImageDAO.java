@@ -28,9 +28,9 @@ public class ImageDAO {
         return pathname;
     }
 
-    private static void writeArray(String filename, int[] x) {
+    private static void writeArray(String filename, int[] array) {
         try (BufferedWriter outputWriter = new BufferedWriter(new FileWriter(filename))) {
-            for (int value : x) {
+            for (int value : array) {
                 outputWriter.write(Integer.toString(value));
                 outputWriter.newLine();
             }
