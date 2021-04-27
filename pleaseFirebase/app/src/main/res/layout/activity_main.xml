@@ -33,17 +33,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp" />
 
-    <TextView
-        android:labelFor="@+id/textNet"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:text="Preferred Network: (ResNeSt/MDEQ)" />
-
-    <EditText
-        android:id="@+id/textNet"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"/>
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
@@ -78,5 +67,56 @@
         android:background="@color/colorAccent"
         android:text="@string/action_submit"
         android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:background="@color/colorAccent"
+        android:text="@string/action_save"
+        android:textColor="@android:color/white" />
+
+
+
+    <Button
+        android:id="@+id/button_ResNeSt"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ResNeSt\nbetter fit for indoors images" />
+
+    <Button
+        android:id="@+id/button_MDEQ"
+        android:visibility="gone"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="MDEQ\nbetter fit for large urban images" />
+
+    <Button
+        android:id="@+id/button_PyConv"
+        android:visibility="gone"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="PyConv\nnot implemented - better fit for ???" />
+
+    <Button
+        android:id="@+id/button_DNL"
+        android:visibility="gone"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="DNL\nnot implemented - better fit for ???" />
+
+    <Button
+        android:id="@+id/button_HANet"
+        android:visibility="gone"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="HANet\nnot implemented - better fit for urban roads images" />
 
 </LinearLayout>

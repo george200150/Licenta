@@ -2,6 +2,7 @@ package com.george200150.bsc.pleasefirebase;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -15,7 +16,6 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -54,9 +54,14 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar progress_loader;
     private ImageView imageView;
     private android.graphics.Bitmap photo;
+    private android.graphics.Bitmap result;
     private Button submitBtn;
-    private EditText textNet;
-    private Method method;
+    private Button saveBtn;
+    private Button button_ResNeSt;
+    private Button button_MDEQ;
+    private Button button_PyConv;
+    private Button button_DNL;
+    private Button button_HANet;
     private static int disabledColor;
     private static int enabledColor;
 
@@ -67,10 +72,14 @@ public class MainActivity extends AppCompatActivity {
     private static APIService mAPIService;
     private BroadcastReceiver receiver;
     private IntentFilter filter;
+    private Button button_camera;
+    private Button button_upload;
+    private ForwardMessage message;
 
 
     public void handleFirebaseNotification(String payload) {
-        getApplicationContext().unregisterReceiver(receiver); // unregister from events until next image submit
+        // unregister from events until next image submit
+        getApplicationContext().unregisterReceiver(receiver);
 
         mResponseTv2.setText(payload);
         mAPIService.sendFetchPOST(payload).enqueue(new Callback<Bitmap>() {
@@ -83,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                     imageView.setVisibility(View.VISIBLE);
                     progress_loader.setVisibility(View.GONE);
                     displayBitmap(bitmap.getWidth(), bitmap.getHeight(), bitmap.getPixels());
+                    saveBtn.setVisibility(View.VISIBLE);
                 } else { // thrown exception via Advice
                     String errorMessage = "ERROR!";
                     try {
@@ -96,16 +106,16 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Bitmap> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "SOMETHING UNEXPECTED HAPPENED...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.mssg_error_api, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void displayBitmap(int width, int height, int[] pixels) {
-        android.graphics.Bitmap bitmap = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
-        bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+        result = android.graphics.Bitmap.createBitmap(width, height, android.graphics.Bitmap.Config.RGB_565);
+        result.setPixels(pixels, 0, width, 0, 0, width, height);
 
-        BitmapDrawable drawable = new BitmapDrawable(bitmap);
+        BitmapDrawable drawable = new BitmapDrawable(result);
         drawable.setFilterBitmap(false);
         imageView.setImageDrawable(drawable);
     }
@@ -116,9 +126,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         submitBtn = (Button) findViewById(R.id.btn_submit);
-        textNet = (EditText) findViewById(R.id.textNet);
-        Button button = (Button) findViewById(R.id.button);
-        Button button_upload = (Button) findViewById(R.id.button_upload);
+        saveBtn = (Button) findViewById(R.id.btn_save);
+
+        button_ResNeSt = (Button) findViewById(R.id.button_ResNeSt);
+        button_MDEQ = (Button) findViewById(R.id.button_MDEQ);
+        button_PyConv = (Button) findViewById(R.id.button_PyConv);
+        button_DNL = (Button) findViewById(R.id.button_DNL);
+        button_HANet = (Button) findViewById(R.id.button_HANet);
+
+        button_camera = (Button) findViewById(R.id.button);
+        button_upload = (Button) findViewById(R.id.button_upload);
         imageView = (ImageView) findViewById(R.id.imageView);
         progress_loader = (ProgressBar) findViewById(R.id.progress_loader);
         mResponseTv = (TextView) findViewById(R.id.tv_response);
@@ -136,32 +153,94 @@ public class MainActivity extends AppCompatActivity {
                 if (payload != null) {
                     handleFirebaseNotification(payload);
                 } else {
-                    Toast.makeText(context, "Notification was empty!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, R.string.mssg_error_notification, Toast.LENGTH_LONG).show();
                 }
             }
         };
         filter = new IntentFilter(SubscriptionMessages.NOTIFICATION_ARRIVED);
 
-        button.setOnClickListener(this::dispatchTakePictureIntent);
+        imageView.setOnClickListener(view -> {
+            if (result == null) {
+                return;
+            }
+            if (((BitmapDrawable) imageView.getDrawable()).getBitmap().equals(result)) {
+                imageView.setImageBitmap(photo);
+            } else {
+                imageView.setImageBitmap(result);
+            }
+        });
+
+        button_camera.setOnClickListener(this::dispatchTakePictureIntent);
         button_upload.setOnClickListener(this::dispatchOpenFileIntent);
         submitBtn.setOnClickListener(view -> {
             if (photo != null) {
+                result = null;
                 submitBtn.setEnabled(false);
                 submitBtn.setBackgroundColor(disabledColor);
 
-                getApplicationContext().registerReceiver(receiver, filter); // prepare to receive an Intent from FirbaseMessagingService
+                // prepare to receive an Intent from FirbaseMessagingService
+                getApplicationContext().registerReceiver(receiver, filter);
 
-                sendPost(photo); // todo: do in background task
+                message = createForwardMessage(photo); // todo: do in background task
 
-                imageView.setImageBitmap(photo);
-                imageView.setVisibility(View.GONE);
-                progress_loader.setVisibility(View.VISIBLE);
+                saveBtn.setVisibility(View.GONE);
+                changeInterface(View.VISIBLE, View.GONE);
             }
         });
+        saveBtn.setOnClickListener(view -> {
+            if (photo != null) {
+                try {
+                    MediaStore.Images.Media.insertImage(getContentResolver(), result, "Segmentation_" + System.nanoTime(), "result");
+                    Toast.makeText(this, R.string.mssg_saved_file, Toast.LENGTH_SHORT).show();
+                    saveBtn.setVisibility(View.GONE);
+                } catch (Exception ignored) {
+                    Toast.makeText(this, R.string.mssg_error_save_file, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        button_ResNeSt.setOnClickListener(view -> sendPost(0));
+        button_MDEQ.setOnClickListener(view -> sendPost(1));
+        button_PyConv.setOnClickListener(view -> sendPost(2));
+        button_DNL.setOnClickListener(view -> sendPost(3));
+        button_HANet.setOnClickListener(view -> sendPost(4));
+
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestStoragePermission();
         }
+    }
+
+    private ForwardMessage createForwardMessage(android.graphics.Bitmap androidBitmap) {
+        Bitmap bitmap = new Bitmap();
+
+        int h = androidBitmap.getHeight();
+        int w = androidBitmap.getWidth();
+
+        bitmap.setHeight(h);
+        bitmap.setWidth(w);
+
+        int[] androidPixels = new int[h * w];
+        androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
+
+        bitmap.setPixels(androidPixels);
+
+        Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
+        ForwardMessage forwardMessage = new ForwardMessage(bitmap, token, null);
+        subscribeToTopic(token.getMessage());
+        return forwardMessage;
+    }
+
+    private void changeInterface(int firstGroupVisibility, int secondGroupVisibility) {
+        button_ResNeSt.setVisibility(firstGroupVisibility);
+        button_MDEQ.setVisibility(firstGroupVisibility);
+        button_PyConv.setVisibility(firstGroupVisibility);
+        button_DNL.setVisibility(firstGroupVisibility);
+        button_HANet.setVisibility(firstGroupVisibility);
+
+        //imageView + button_camera + button_upload + btn_submit (w/out btn_save)
+        button_camera.setVisibility(secondGroupVisibility);
+        button_upload.setVisibility(secondGroupVisibility);
+        submitBtn.setVisibility(secondGroupVisibility);
     }
 
     @Override
@@ -194,9 +273,9 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == STORAGE_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission GRANTED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.mssg_permission_granted, Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "Permission DENIED", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.mssg_permission_denied, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -237,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
         int width = image.getWidth();
         int height = image.getHeight();
 
-        if (maxSize >= width && maxSize >= height ) { // no need to resize
+        if (maxSize >= width && maxSize >= height) { // no need to resize
             return image;
         }
 
@@ -261,15 +340,23 @@ public class MainActivity extends AppCompatActivity {
         } else if (requestCode == STORAGE_PERMISSION_CODE && resultCode == RESULT_OK && null != data) {
 
             Uri selectedImage = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
 
-            getResizedBitmap(picturePath);
+            ContentResolver cR = this.getContentResolver();
+            String type = cR.getType(selectedImage);
+            if (type.equals("image/jpeg") || type.equals("image/png")) {
+
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String picturePath = cursor.getString(columnIndex);
+                cursor.close();
+
+                getResizedBitmap(picturePath);
+            } else {
+                Toast.makeText(this, R.string.mssg_error_bad_file, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -277,42 +364,22 @@ public class MainActivity extends AppCompatActivity {
         BitmapFactory.Options options = new BitmapFactory.Options();
         android.graphics.Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath, options);
 
-        String networkName = textNet.getText().toString().toLowerCase();
-
-        // set maximum size according to the used network
-        if (networkName.equals("resnest")) {
-            photo = this.resizeBitmap(bitmap, 500); // ResNeSt does not support any larger images
-            method = new Method(0);
-        } else if (networkName.equals("mdeq")) {
-            photo = this.resizeBitmap(bitmap, 2048); // MDEQ does. (long network delay)
-            method = new Method(1);
-        } else {
-            Toast.makeText(this, "Please select the Network first!", Toast.LENGTH_SHORT).show();
-            method = new Method(-1);
-            return;
-        }
+        // ResNeSt does not support any larger images - could send bigger images and handle methods
+        // on server side, but there would be too much latency to send a 4000x3000 pic and resize it
+        // on server to 400x300 just for nothing.
+        // TODO: find a solution for this...
+        photo = this.resizeBitmap(bitmap, 500);
         imageView.setImageBitmap(photo);
     }
 
-    public void sendPost(android.graphics.Bitmap androidBitmap) {
-        Bitmap bitmap = new Bitmap();
+    public void sendPost(int methodCode) {
+        message.setMethod(new Method(methodCode));
 
-        int h = androidBitmap.getHeight();
-        int w = androidBitmap.getWidth();
+        changeInterface(View.GONE, View.VISIBLE);
+        imageView.setVisibility(View.GONE);
+        progress_loader.setVisibility(View.VISIBLE);
 
-        bitmap.setHeight(h);
-        bitmap.setWidth(w);
-
-        int[] androidPixels = new int[h * w];
-        androidBitmap.getPixels(androidPixels, 0, w, 0, 0, w, h);
-
-        bitmap.setPixels(androidPixels);
-
-        Token token = new Token(bitmap.hashCode() + "_TOKEN_" + System.nanoTime());
-        ForwardMessage forwardMessage = new ForwardMessage(bitmap, token, method);
-        subscribeToTopic(token.getMessage());
-
-        mAPIService.sendBitmapPOST(forwardMessage).enqueue(new Callback<Token>() {
+        mAPIService.sendBitmapPOST(message).enqueue(new Callback<Token>() {
             @Override
             public void onResponse(Call<Token> call, Response<Token> response) {
                 if (response.isSuccessful()) {

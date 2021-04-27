@@ -3,6 +3,14 @@
     <string name="hint_title">Title</string>
     <string name="hint_body">Body</string>
     <string name="action_submit">Submit</string>
+    <string name="action_save">Save Result</string>
     <string name="title_enter_post">Send a Photo!</string>
     <string name="mssg_error_submitting_post">Error submitting post</string>
+    <string name="mssg_permission_granted">Permission GRANTED</string>
+    <string name="mssg_permission_denied">Permission DENIED</string>
+    <string name="mssg_error_bad_file">Please choose an image!</string>
+    <string name="mssg_error_api">SOMETHING UNEXPECTED HAPPENED...</string>
+    <string name="mssg_error_notification">Notification was empty!</string>
+    <string name="mssg_saved_file">Result successfully saved in Gallery!</string>
+    <string name="mssg_error_save_file">Could not save result!</string>
 </resources>
