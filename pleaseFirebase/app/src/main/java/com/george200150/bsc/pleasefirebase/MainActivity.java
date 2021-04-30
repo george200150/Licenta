@@ -120,6 +120,22 @@ public class MainActivity extends AppCompatActivity {
         imageView.setImageDrawable(drawable);
     }
 
+    private void prepareSendPhoto() {
+        if (photo != null) {
+            result = null;
+            submitBtn.setEnabled(false);
+            submitBtn.setBackgroundColor(disabledColor);
+
+            // prepare to receive an Intent from FirbaseMessagingService
+            getApplicationContext().registerReceiver(receiver, filter);
+
+            message = createForwardMessage(photo); // todo: do in background task
+
+            saveBtn.setVisibility(View.GONE);
+            changeInterface(View.VISIBLE, View.GONE);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,45 +175,12 @@ public class MainActivity extends AppCompatActivity {
         };
         filter = new IntentFilter(SubscriptionMessages.NOTIFICATION_ARRIVED);
 
-        imageView.setOnClickListener(view -> {
-            if (result == null) {
-                return;
-            }
-            if (((BitmapDrawable) imageView.getDrawable()).getBitmap().equals(result)) {
-                imageView.setImageBitmap(photo);
-            } else {
-                imageView.setImageBitmap(result);
-            }
-        });
+        imageView.setOnClickListener(view -> changeImage());
 
         button_camera.setOnClickListener(this::dispatchTakePictureIntent);
         button_upload.setOnClickListener(this::dispatchOpenFileIntent);
-        submitBtn.setOnClickListener(view -> {
-            if (photo != null) {
-                result = null;
-                submitBtn.setEnabled(false);
-                submitBtn.setBackgroundColor(disabledColor);
-
-                // prepare to receive an Intent from FirbaseMessagingService
-                getApplicationContext().registerReceiver(receiver, filter);
-
-                message = createForwardMessage(photo); // todo: do in background task
-
-                saveBtn.setVisibility(View.GONE);
-                changeInterface(View.VISIBLE, View.GONE);
-            }
-        });
-        saveBtn.setOnClickListener(view -> {
-            if (photo != null) {
-                try {
-                    MediaStore.Images.Media.insertImage(getContentResolver(), result, "Segmentation_" + System.nanoTime(), "result");
-                    Toast.makeText(this, R.string.mssg_saved_file, Toast.LENGTH_SHORT).show();
-                    saveBtn.setVisibility(View.GONE);
-                } catch (Exception ignored) {
-                    Toast.makeText(this, R.string.mssg_error_save_file, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        submitBtn.setOnClickListener(view -> prepareSendPhoto());
+        saveBtn.setOnClickListener(view -> saveResult());
         button_ResNeSt.setOnClickListener(view -> sendPost(0));
         button_MDEQ.setOnClickListener(view -> sendPost(1));
         button_PyConv.setOnClickListener(view -> sendPost(2));
@@ -207,6 +190,29 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestStoragePermission();
+        }
+    }
+
+    private void changeImage() {
+        if (result == null) {
+            return;
+        }
+        if (((BitmapDrawable) imageView.getDrawable()).getBitmap().equals(result)) {
+            imageView.setImageBitmap(photo);
+        } else {
+            imageView.setImageBitmap(result);
+        }
+    }
+
+    private void saveResult() {
+        if (photo != null) {
+            try {
+                MediaStore.Images.Media.insertImage(getContentResolver(), result, "Depth_" + System.nanoTime(), "result");
+                Toast.makeText(this, R.string.mssg_saved_file, Toast.LENGTH_SHORT).show();
+                saveBtn.setVisibility(View.GONE);
+            } catch (Exception ignored) {
+                Toast.makeText(this, R.string.mssg_error_save_file, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -289,9 +295,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void dispatchOpenFileIntent(View view) {
-        Intent i = new Intent(
+        Intent openFileIntent = new Intent(
                 Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        startActivityForResult(i, STORAGE_PERMISSION_CODE);
+        startActivityForResult(openFileIntent, STORAGE_PERMISSION_CODE);
     }
 
     private void dispatchTakePictureIntent(View view) {

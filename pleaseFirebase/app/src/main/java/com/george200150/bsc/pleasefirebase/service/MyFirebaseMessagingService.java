@@ -20,8 +20,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Intent intent = new Intent(SubscriptionMessages.NOTIFICATION_ARRIVED);
             intent.putExtra("RESOURCE", RESOURCE);
 
-            sendBroadcast(intent);
-            getBaseContext().sendBroadcast(intent);
+//            sendBroadcast(intent);
+//            getBaseContext().sendBroadcast(intent);
             getApplicationContext().sendBroadcast(intent);
         }
     }

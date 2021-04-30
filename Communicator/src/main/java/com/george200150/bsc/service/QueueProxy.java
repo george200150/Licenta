@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class QueueProxy {
     @Autowired
-    AndroidPushNotificationsService androidPushNotificationsService;
+    AndroidPushNotificationsService notificationsService;
 
     @Autowired
     private ObjectMapper mapper;
@@ -76,7 +76,7 @@ public class QueueProxy {
     private void sendImagePathAndToken(String resourcePath, Token token) {
         HttpEntity<String> request = buildRequest(resourcePath, token);
 
-        CompletableFuture<String> pushNotification = androidPushNotificationsService.send(request);
+        CompletableFuture<String> pushNotification = notificationsService.send(request);
         CompletableFuture.allOf(pushNotification).join();
         try {
             String firebaseResponse = pushNotification.get();
