@@ -51,8 +51,8 @@ class MachineLearningProcessor:
             pred_classes.append(b)
         ################################################################################################################
 
-        predictionsList = pred_classes
-        return width, height, predictionsList
+        predictions_list = pred_classes
+        return width, height, predictions_list
 
 
 class BitmapFormatAdapter:
@@ -123,5 +123,5 @@ class Main:
 
 
 if __name__ == '__main__':
-    executor = ThreadPoolExecutor(5)
+    executor = ThreadPoolExecutor(16)
     Main.main()

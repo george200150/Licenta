@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             // prepare to receive an Intent from FirbaseMessagingService
             getApplicationContext().registerReceiver(receiver, filter);
 
-            message = createForwardMessage(photo); // todo: do in background task
+            message = createForwardMessage(photo);
 
             saveBtn.setVisibility(View.GONE);
             changeInterface(View.VISIBLE, View.GONE);
@@ -349,8 +349,7 @@ public class MainActivity extends AppCompatActivity {
 
             ContentResolver cR = this.getContentResolver();
             String type = cR.getType(selectedImage);
-            if (type.equals("image/jpeg") || type.equals("image/png")) {
-
+            if (type.equals("image/jpeg") || type.equals("image/png") || type.equals("image/x-ms-bmp")) {
                 String[] filePathColumn = {MediaStore.Images.Media.DATA};
                 Cursor cursor = getContentResolver().query(selectedImage,
                         filePathColumn, null, null, null);
@@ -373,7 +372,6 @@ public class MainActivity extends AppCompatActivity {
         // ResNeSt does not support any larger images - could send bigger images and handle methods
         // on server side, but there would be too much latency to send a 4000x3000 pic and resize it
         // on server to 400x300 just for nothing.
-        // TODO: find a solution for this...
         photo = this.resizeBitmap(bitmap, 500);
         imageView.setImageBitmap(photo);
     }
