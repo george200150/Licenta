@@ -62,14 +62,14 @@ public class MainActivity extends AppCompatActivity {
     private Button button_PyConv;
     private Button button_DNL;
     private Button button_HANet;
-    private static int disabledColor;
-    private static int enabledColor;
+    private int disabledColor;
+    private int enabledColor;
 
     static final int REQUEST_TAKE_PHOTO = 11;
     static final int STORAGE_PERMISSION_CODE = 1;
 
     private String currentPhotoPath;
-    private static APIService mAPIService;
+    private APIService mAPIService;
     private BroadcastReceiver receiver;
     private IntentFilter filter;
     private Button button_camera;

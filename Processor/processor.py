@@ -27,16 +27,21 @@ class MachineLearningProcessor:
         # ResNeSt (works fine with any dimension)
         # MDEQ (allows only LANDSCAPE 2048x1024)
 
-        if method == 0:
+        try:
+            if method == 0:
+                model = ResNeSt_loadModel()
+                width, height, pred_img = resnest_inference(model, img)
+                print(' [x] ResNeSt')
+            elif method == 1:
+                model = MDEQ_loadModel()
+                width, height, pred_img = mdeq_inference(model, img)
+                print(' [x] MDEQ')
+            else:
+                raise Exception("Bad Method!")
+        except IndexError:
+            img = Image.new('RGB', (400, 400), "black")
             model = ResNeSt_loadModel()
             width, height, pred_img = resnest_inference(model, img)
-            print(' [x] ResNeSt')
-        elif method == 1:
-            model = MDEQ_loadModel()
-            width, height, pred_img = mdeq_inference(model, img)
-            print(' [x] MDEQ')
-        else:
-            raise Exception("Bad Method!")
 
         pred_img = pred_img.convert('RGB')
 
