@@ -8,9 +8,19 @@ from concurrent.futures.thread import ThreadPoolExecutor
 
 import pika
 from PIL import Image
+import cv2
+import numpy as np
 
 from ResNeSt.demo import loadModel as ResNeSt_loadModel, inference as resnest_inference
 from MDEQ.isolated import loadModel as MDEQ_loadModel, inference as mdeq_inference
+from DPT.dpt_multipurpose import loadModel as DPT_loadModel, inference as dpt_inference
+
+
+def convert_pil_to_cv2_image(pil_img):  # only for DPT format adapting
+    cv2_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+    if cv2_img.ndim == 2:
+        cv2_img = cv2.cvtColor(cv2_img, cv2.COLOR_GRAY2BGR)
+    return cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB) / 255.0
 
 
 class MachineLearningProcessor:
@@ -23,19 +33,27 @@ class MachineLearningProcessor:
             pixels[i % width, i // width] = rgb_pixels[i]
 
         ################################################################################################################
-        # TODO: insert cool ML image processing algorithm here
-        # ResNeSt (works fine with any dimension)
-        # MDEQ (allows only LANDSCAPE 2048x1024)
+        # ResNeSt (fast - works fine with any dimension)
+        # MDEQ (allows only LANDSCAPE 2048x1024) (problems resizing)
+        # DPT (SOTA - accepts any image size)
 
         try:
             if method == 0:
+                model = DPT_loadModel("DE")
+                width, height, pred_img = dpt_inference("DE", model, convert_pil_to_cv2_image(img))
+                print(' [x] DPT DE')
+            elif method == 1:
                 model = ResNeSt_loadModel()
                 width, height, pred_img = resnest_inference(model, img)
                 print(' [x] ResNeSt')
-            elif method == 1:
+            elif method == 2:
                 model = MDEQ_loadModel()
                 width, height, pred_img = mdeq_inference(model, img)
                 print(' [x] MDEQ')
+            elif method == 3:
+                model = DPT_loadModel("SS")
+                width, height, pred_img = dpt_inference("SS", model, convert_pil_to_cv2_image(img))
+                print(' [x] DPT SS')
             else:
                 raise Exception("Bad Method!")
         except IndexError:

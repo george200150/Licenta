@@ -79,44 +79,36 @@
         android:textColor="@android:color/white" />
 
 
+    <Button
+        android:id="@+id/button_DPT_DE"
+        android:visibility="gone"
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Depth Estimation\nDPT - depth of field" />
 
     <Button
         android:id="@+id/button_ResNeSt"
         android:visibility="gone"
+        android:layout_marginTop="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ResNeSt\nbetter fit for indoors images" />
+        android:text="Semantic Segmentation\nResNeSt-101 - faster processing" />
+
+<!--    <Button-->
+<!--        android:id="@+id/button_MDEQ"-->
+<!--        android:visibility="gone"-->
+<!--        android:layout_marginTop="15dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Semantic Segmentation\nMDEQ - better performance" />-->
 
     <Button
-        android:id="@+id/button_MDEQ"
+        android:id="@+id/button_DPT_SS"
         android:visibility="gone"
         android:layout_marginTop="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MDEQ\nbetter fit for large urban images" />
-
-    <Button
-        android:id="@+id/button_PyConv"
-        android:visibility="gone"
-        android:layout_marginTop="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="PyConv\nnot implemented - better fit for ???" />
-
-    <Button
-        android:id="@+id/button_DNL"
-        android:visibility="gone"
-        android:layout_marginTop="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="DNL\nnot implemented - better fit for ???" />
-
-    <Button
-        android:id="@+id/button_HANet"
-        android:visibility="gone"
-        android:layout_marginTop="15dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="HANet\nnot implemented - better fit for urban roads images" />
+        android:text="Semantic Segmentation\nDPT - state of the art" />
 
 </LinearLayout>

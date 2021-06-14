@@ -58,10 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private Button submitBtn;
     private Button saveBtn;
     private Button button_ResNeSt;
-    private Button button_MDEQ;
-    private Button button_PyConv;
-    private Button button_DNL;
-    private Button button_HANet;
+    private Button button_DPT_SS;
+    private Button button_DPT_DE;
     private int disabledColor;
     private int enabledColor;
 
@@ -145,10 +143,8 @@ public class MainActivity extends AppCompatActivity {
         saveBtn = (Button) findViewById(R.id.btn_save);
 
         button_ResNeSt = (Button) findViewById(R.id.button_ResNeSt);
-        button_MDEQ = (Button) findViewById(R.id.button_MDEQ);
-        button_PyConv = (Button) findViewById(R.id.button_PyConv);
-        button_DNL = (Button) findViewById(R.id.button_DNL);
-        button_HANet = (Button) findViewById(R.id.button_HANet);
+        button_DPT_SS = (Button) findViewById(R.id.button_DPT_SS);
+        button_DPT_DE = (Button) findViewById(R.id.button_DPT_DE);
 
         button_camera = (Button) findViewById(R.id.button);
         button_upload = (Button) findViewById(R.id.button_upload);
@@ -181,11 +177,9 @@ public class MainActivity extends AppCompatActivity {
         button_upload.setOnClickListener(this::dispatchOpenFileIntent);
         submitBtn.setOnClickListener(view -> prepareSendPhoto());
         saveBtn.setOnClickListener(view -> saveResult());
-        button_ResNeSt.setOnClickListener(view -> sendPost(0));
-        button_MDEQ.setOnClickListener(view -> sendPost(1));
-        button_PyConv.setOnClickListener(view -> sendPost(2));
-        button_DNL.setOnClickListener(view -> sendPost(3));
-        button_HANet.setOnClickListener(view -> sendPost(4));
+        button_DPT_DE.setOnClickListener(view -> sendPost(0));
+        button_ResNeSt.setOnClickListener(view -> sendPost(1));
+        button_DPT_SS.setOnClickListener(view -> sendPost(3));
 
         if (ContextCompat.checkSelfPermission(MainActivity.this,
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -238,10 +232,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void changeInterface(int firstGroupVisibility, int secondGroupVisibility) {
         button_ResNeSt.setVisibility(firstGroupVisibility);
-        button_MDEQ.setVisibility(firstGroupVisibility);
-        button_PyConv.setVisibility(firstGroupVisibility);
-        button_DNL.setVisibility(firstGroupVisibility);
-        button_HANet.setVisibility(firstGroupVisibility);
+        button_DPT_SS.setVisibility(firstGroupVisibility);
+        button_DPT_DE.setVisibility(firstGroupVisibility);
 
         //imageView + button_camera + button_upload + btn_submit (w/out btn_save)
         button_camera.setVisibility(secondGroupVisibility);
